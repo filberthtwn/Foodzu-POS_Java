@@ -32,6 +32,7 @@ import com.app.superpos.bt_device.DeviceListActivity;
 import com.app.superpos.database.DatabaseAccess;
 import com.app.superpos.helpers.SharedPreferencesHelper;
 import com.app.superpos.model.Customer;
+import com.app.superpos.model.OrderDetails;
 import com.app.superpos.networking.ApiClient;
 import com.app.superpos.networking.ApiInterface;
 import com.app.superpos.orders.OrderDetailsActivity;
@@ -42,6 +43,7 @@ import com.app.superpos.utils.IPrintToPrinter;
 import com.app.superpos.utils.PrefMng;
 import com.app.superpos.utils.Tools;
 import com.app.superpos.utils.Utils;
+import com.app.superpos.utils.WoosimPrnMng;
 import com.app.superpos.utils.printerFactory;
 
 import org.json.JSONArray;
@@ -66,6 +68,7 @@ import retrofit2.Response;
 public class ProductCart extends BaseActivity {
 
     private final int REQUEST_CONNECT = 100;
+    private WoosimPrnMng mPrnMng = null;
 
     CartAdapter productCartAdapter;
     ImageView imgNoProduct;
@@ -79,8 +82,10 @@ public class ProductCart extends BaseActivity {
     List<Customer> customerData;
     ArrayAdapter<String> customerAdapter, orderTypeAdapter, paymentMethodAdapter;
     SharedPreferences sp;
-    String servedBy,staffId,shopTax,currency,shopID,ownerId;
+    String servedBy,staffId,shopTax,userName,currency,shopID,ownerId,shopName,shopEmail,shopContact,shopAddress;
     DecimalFormat f;
+
+    List<OrderDetails> orderDetails = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,9 +98,14 @@ public class ProductCart extends BaseActivity {
         f = new DecimalFormat("#0.00");
         sp = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
+        shopName = sp.getString(Constant.SP_SHOP_NAME, "N/A");
+        shopEmail = sp.getString(Constant.SP_SHOP_EMAIL, "N/A");
+        shopContact = sp.getString(Constant.SP_SHOP_CONTACT, "N/A");
+        shopAddress = sp.getString(Constant.SP_SHOP_ADDRESS, "N/A");
         servedBy = sp.getString(Constant.SP_STAFF_NAME, "");
         staffId = sp.getString(Constant.SP_STAFF_ID, "");
         shopTax= sp.getString(Constant.SP_TAX, "");
+        userName = sp.getString(Constant.SP_STAFF_NAME, "N/A");
         currency= sp.getString(Constant.SP_CURRENCY_SYMBOL, "");
 
         shopID = sp.getString(Constant.SP_SHOP_ID, "");
@@ -238,7 +248,14 @@ public class ProductCart extends BaseActivity {
                         objp.put("product_price", lines.get(i).get("product_price"));
                         objp.put("product_order_date", currentDate);
                         objp.put("tax", lines.get(i).get("tax"));
-
+                        orderDetails.add(
+                            new OrderDetails(
+                                productName,
+                                lines.get(i).get("product_price"),
+                                lines.get(i).get("product_qty"),
+                                lines.get(i).get("product_weight") + " " + productWeightUnit
+                            )
+                        );
                         array.put(objp);
 
                     }
@@ -296,28 +313,18 @@ public class ProductCart extends BaseActivity {
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
 
                 if (response.isSuccessful()) {
-                    String activePrinter = SharedPreferencesHelper
-                            .instance
-                            .getPrinterAddress(
-                            ProductCart.this
-                            );
-                    System.out.println("==ACTIVE PRINTER: " + activePrinter);
-
-//                    //Get device address to print to.
-//                    String blutoothAddr = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
-//                    //The interface to print text to thermal printers.
-//                    IPrintToPrinter testPrinter = new TestPrinter(this, shopName, shopAddress, shopEmail, shopContact, invoiceId, orderDate, orderTime, shortText, longText, Double.parseDouble(orderPrice), f.format(calculatedTotalPrice), tax, discount, currency, userName,orderDetails);
-//                    //Connect to the printer and after successful connection issue the print command.
-//                    mPrnMng = printerFactory.createPrnMng(this, blutoothAddr, testPrinter);
-
+                    for (int i = 0; i < 2; i++) {
+                        printReceipt(obj);
+                    }
                     progressDialog.dismiss();
-//                    return;
-//                    Toasty.success(ProductCart.this, R.string.order_successfully_done, Toast.LENGTH_SHORT).show();
-//
-//                    databaseAccess.open();
-//                    databaseAccess.emptyCart();
-//                    dialogSuccess();
-
+                    Toasty.success(
+                        ProductCart.this,
+                        R.string.order_successfully_done,
+                        Toast.LENGTH_SHORT
+                    ).show();
+                    databaseAccess.open();
+                    databaseAccess.emptyCart();
+                    dialogSuccess();
                 } else {
 
                     Toasty.error(ProductCart.this, R.string.error, Toast.LENGTH_SHORT).show();
@@ -341,8 +348,53 @@ public class ProductCart extends BaseActivity {
 
     }
 
+    private void printReceipt(final JSONObject obj) {
+        try {
+            String activePrinterAddr = SharedPreferencesHelper
+                    .instance
+                    .getPrinterAddress(
+                            ProductCart.this
+                    );
+            //The interface to print text to thermal printers.
+            double orderPriceInDouble = Double.parseDouble(obj.getString("order_price"));
+            double taxInDouble = Double.parseDouble(obj.getString("tax"));
+            double discountInDouble = Double.parseDouble(obj.getString("discount"));
+            double calculatedTotalPrice = orderPriceInDouble + taxInDouble - discountInDouble;
+            IPrintToPrinter testPrinter = new TestPrinter(
+                this,
+                shopName,
+                shopAddress,
+                shopEmail,
+                shopContact,
+                obj.getString("invoice_id"),
+                obj.getString("order_date"),
+                obj.getString("order_time"),
+                "Customer Name: Mr/Mrs. " + obj.getString("customer_name"),
+                "< Have a nice day. Visit again >",
+                Double.parseDouble(obj.getString("order_price")),
+                f.format(calculatedTotalPrice),
+                obj.getString("tax"),
+                obj.getString("discount"),
+                currency,
+                userName,
+                orderDetails
+            );
+            //Connect to the printer and after successful connection issue the print command.
+            mPrnMng = printerFactory.createPrnMng(this, activePrinterAddr, testPrinter);
+            SharedPreferencesHelper.instance.storePrinterAddress(
+                ProductCart.this,
+                activePrinterAddr
+            );
+        } catch (Exception e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
 
-
+    @Override
+    protected void onDestroy() {
+        if (mPrnMng != null) mPrnMng.releaseAllocatoins();
+        super.onDestroy();
+    }
 
     public void dialogSuccess() {
 

@@ -322,11 +322,6 @@ public class OrderDetailsActivity extends BaseActivity {
             try {
                 //Get device address to print to.
                 String blutoothAddr = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
-                SharedPreferencesHelper.instance.storePrinterAddress(
-                        OrderDetailsActivity.this,
-                        blutoothAddr
-                );
-                System.out.println("PRINTER SAVED");
                 //The interface to print text to thermal printers.
                 IPrintToPrinter testPrinter = new TestPrinter(this, shopName, shopAddress, shopEmail, shopContact, invoiceId, orderDate, orderTime, shortText, longText, Double.parseDouble(orderPrice), f.format(calculatedTotalPrice), tax, discount, currency, userName,orderDetails);
                 //Connect to the printer and after successful connection issue the print command.

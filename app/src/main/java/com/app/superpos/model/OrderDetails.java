@@ -4,7 +4,19 @@ import com.google.gson.annotations.SerializedName;
 
 public class OrderDetails {
 
+    public OrderDetails() { }
 
+    public OrderDetails(
+            String name,
+            String price,
+            String quantity,
+            String weight
+    ) {
+        this.productName = name;
+        this.productPrice = price;
+        this.productQuantity = quantity;
+        this.productWeight = weight;
+    }
 
     @SerializedName("order_details_id")
     private String orderDetailsId;
@@ -73,8 +85,7 @@ public class OrderDetails {
         return orderDetailsId;
     }
 
-
-
-
-
+    public double getCostTotal() {
+        return Integer.parseInt(productQuantity) * Double.parseDouble(productPrice);
+    }
 }
