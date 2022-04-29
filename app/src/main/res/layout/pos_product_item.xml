@@ -38,6 +38,7 @@
                         android:id="@+id/img_product"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:layout_margin="24dp"
                         android:scaleType="fitXY"
                         app:srcCompat="@drawable/image_placeholder" />
 
@@ -49,15 +50,15 @@
                             android:id="@+id/txt_stock_status"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
                             android:background="@color/red"
                             android:paddingLeft="5dp"
                             android:paddingRight="3dp"
-                            android:layout_alignParentStart="true"
                             android:paddingBottom="2dp"
                             android:text="@string/low_stock"
                             android:textColor="@color/white"
                             android:textSize="12sp"
-                            android:visibility="visible" />
+                            android:visibility="gone" />
                     </RelativeLayout>
                 </RelativeLayout>
 
@@ -85,6 +86,7 @@
                         android:gravity="center"
                         android:padding="2dp"
                         android:text="@string/stock"
+                        android:visibility="gone"
                         app:fontFamily="@font/sailec_regular" />
 
                     <TextView
@@ -94,6 +96,7 @@
                         android:gravity="center"
                         android:padding="2dp"
                         android:text="@string/weight"
+                        android:visibility="gone"
                         app:fontFamily="@font/sailec_regular" />
 
                     <TextView
@@ -111,7 +114,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:gravity="center"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:visibility="gone">
 
                         <TextView
                             android:id="@+id/txt_tax"

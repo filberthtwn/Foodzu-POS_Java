@@ -98,7 +98,7 @@ public class PosProductAdapter extends RecyclerView.Adapter<PosProductAdapter.My
         int getStock=Integer.parseInt(productStock);
         if (getStock>5) {
             holder.txtStock.setText(context.getString(R.string.stock) + " : " + productStock);
-            holder.txtStockStatus.setVisibility(View.VISIBLE);
+//            holder.txtStockStatus.setVisibility(View.VISIBLE);
 
             holder.txtStockStatus.setBackgroundColor(Color.parseColor("#43a047"));
             holder.txtStockStatus.setText(context.getString(R.string.in_stock));
@@ -108,7 +108,7 @@ public class PosProductAdapter extends RecyclerView.Adapter<PosProductAdapter.My
            
             holder.txtStock.setTextColor(Color.RED);
 
-            holder.txtStockStatus.setVisibility(View.VISIBLE);
+//            holder.txtStockStatus.setVisibility(View.VISIBLE);
             holder.txtStockStatus.setText(context.getString(R.string.not_available));
 
         }
@@ -116,7 +116,7 @@ public class PosProductAdapter extends RecyclerView.Adapter<PosProductAdapter.My
         {
             holder.txtStock.setText(context.getString(R.string.stock) + " : " + productStock);
             holder.txtStock.setTextColor(Color.RED);
-            holder.txtStockStatus.setVisibility(View.VISIBLE);
+//            holder.txtStockStatus.setVisibility(View.VISIBLE);
             holder.txtStockStatus.setText(context.getString(R.string.low_stock));
 
 
