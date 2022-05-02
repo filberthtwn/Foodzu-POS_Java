@@ -139,43 +139,63 @@ public class PosProductAdapter extends RecyclerView.Adapter<PosProductAdapter.My
 
             }
         }
-
-
-
-        holder.btnAddToCart.setOnClickListener(new View.OnClickListener() {
+        holder.cardProduct.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
-                if (getStock<=0)
-                {
-
-                    Toasty.warning(context, R.string.stock_not_available_please_update_stock, Toast.LENGTH_SHORT).show();
-                }
-
-                else {
-
-                    databaseAccess.open();
-
-                    int check = databaseAccess.addToCart(productId,productName, productWeight, weightUnit, productPrice, 1,productImage,productStock,taxAmount);
-
-                    if (check == 1) {
-                        Toasty.success(context, R.string.product_added_to_cart, Toast.LENGTH_SHORT).show();
-                        player.start();
-                    } else if (check == 2) {
-
-                        Toasty.info(context, R.string.product_already_added_to_cart, Toast.LENGTH_SHORT).show();
-
-                    } else {
-
-                        Toasty.error(context, R.string.product_added_to_cart_failed_try_again, Toast.LENGTH_SHORT).show();
-
-                    }
-                }
-
+                addToCart(productData.get(position));
             }
         });
+    }
 
+    private void addToCart(Product productData) {
+        String productPrice = productData.getProductSellPrice();
+        String productStock = productData.getProductStock();
+        String tax = productData.getTax();
+        int stockInString = Integer.parseInt(productStock);
+        double itemPrice=Double.parseDouble(productPrice);
+        double getTax=Double.parseDouble(tax);
+        double taxAmount=(itemPrice*getTax)/100;
+
+        if (stockInString <= 0){
+            Toasty.warning(
+                context,
+                R.string.stock_not_available_please_update_stock,
+                Toast.LENGTH_SHORT
+            ).show();
+            return;
+        }
+        databaseAccess.open();
+        int check = databaseAccess.addToCart(
+            productData.getProductId(),
+            productData.getProductName(),
+            productData.getProductWeight(),
+            productData.getProductWeightUnit(),
+            productData.getProductSellPrice(),
+            1,
+            productData.getProductImage(),
+            productData.getProductStock(),
+            taxAmount
+        );
+        if (check == 1) {
+            Toasty.success(
+                context,
+                R.string.product_added_to_cart,
+                Toast.LENGTH_SHORT
+            ).show();
+            player.start();
+        } else if (check == 2) {
+            Toasty.info(
+                context,
+                R.string.product_already_added_to_cart,
+                Toast.LENGTH_SHORT
+            ).show();
+        } else {
+            Toasty.error(
+                context,
+                R.string.product_added_to_cart_failed_try_again,
+                Toast.LENGTH_SHORT
+            ).show();
+        }
     }
 
     @Override
@@ -189,15 +209,12 @@ public class PosProductAdapter extends RecyclerView.Adapter<PosProductAdapter.My
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
-
         Button btnAddToCart;
         TextView txtProductName, txtWeight, txtPrice,txtStock,txtStockStatus, txtTax;
-
+        View cardProduct;
         ImageView productImage;
-
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
-
             txtProductName = itemView.findViewById(R.id.txt_product_name);
             txtWeight = itemView.findViewById(R.id.txt_weight);
             txtStock = itemView.findViewById(R.id.txt_stock);
@@ -206,10 +223,7 @@ public class PosProductAdapter extends RecyclerView.Adapter<PosProductAdapter.My
             btnAddToCart = itemView.findViewById(R.id.btn_add_cart);
             txtStockStatus=itemView.findViewById(R.id.txt_stock_status);
             txtTax =itemView.findViewById(R.id.txt_tax);
-
-
+            cardProduct = itemView.findViewById(R.id.card_product);
         }
     }
-
-
 }

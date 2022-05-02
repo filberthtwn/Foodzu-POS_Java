@@ -43,6 +43,7 @@
                     android:contentDescription="TODO"
                     android:padding="10dp"
                     android:scaleType="centerCrop"
+                    android:visibility="gone"
                     app:srcCompat="@drawable/category" />
 
                 <TextView
