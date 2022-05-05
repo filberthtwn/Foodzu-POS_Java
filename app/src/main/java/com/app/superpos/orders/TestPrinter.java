@@ -29,6 +29,7 @@ public class TestPrinter implements IPrintToPrinter {
     List<OrderDetails> orderDetailsList;
     String currency, servedBy, shopName, shopAddress, shopEmail, shopContact, invoiceId, orderDate, orderTime, customerName, footer, tax, discount;
     Bitmap bm;
+    WoosimPrnMng printManager;
 
     public TestPrinter(Context context, String shopName, String shopAddress, String shopEmail, String shopContact, String invoiceId, String orderDate, String orderTime, String customerName, String footer, double subTotal, String totalPrice, String tax, String discount, String currency, String served_by, List<OrderDetails> orderDetailsList) {
         this.context = context;
@@ -54,8 +55,12 @@ public class TestPrinter implements IPrintToPrinter {
 
     @Override
     public void printContent(WoosimPrnMng prnMng) {
+        this.printManager = prnMng;
+        printMainReceiptContent();
+        printSmallReceiptContent();
+    }
 
-
+    private void printMainReceiptContent() {
         //Generate barcode
         BarCodeEncoder qrCodeEncoder = new BarCodeEncoder();
         bm = null;
@@ -65,22 +70,24 @@ public class TestPrinter implements IPrintToPrinter {
         } catch (WriterException e) {
             e.printStackTrace();
         }
+        String[] shopNames = shopName.split(",");
+        for (String name : shopNames) {
+            printManager.printStr(name, 1, WoosimCmd.ALIGN_CENTER);
+        }
+        printManager.printStr(shopAddress, 1, WoosimCmd.ALIGN_CENTER);
+        printManager.printStr("Customer Receipt ", 1, WoosimCmd.ALIGN_CENTER);
+        printManager.printStr("Contact: " + shopContact, 1, WoosimCmd.ALIGN_CENTER);
+        printManager.printStr("Invoice ID: " + invoiceId, 1, WoosimCmd.ALIGN_CENTER);
+        printManager.printStr("Order Time: " + orderTime + " " + orderDate, 1, WoosimCmd.ALIGN_CENTER);
+        printManager.printStr(customerName, 1, WoosimCmd.ALIGN_CENTER);
 
-        prnMng.printStr(shopName, 2, WoosimCmd.ALIGN_CENTER);
-        prnMng.printStr(shopAddress, 1, WoosimCmd.ALIGN_CENTER);
-        prnMng.printStr("Customer Receipt ", 1, WoosimCmd.ALIGN_CENTER);
-        prnMng.printStr("Contact: " + shopContact, 1, WoosimCmd.ALIGN_CENTER);
-        prnMng.printStr("Invoice ID: " + invoiceId, 1, WoosimCmd.ALIGN_CENTER);
-        prnMng.printStr("Order Time: " + orderTime + " " + orderDate, 1, WoosimCmd.ALIGN_CENTER);
-        prnMng.printStr(customerName, 1, WoosimCmd.ALIGN_CENTER);
+        printManager.printStr("Email: " + shopEmail, 1, WoosimCmd.ALIGN_CENTER);
+        printManager.printStr("Served By: " + servedBy, 1, WoosimCmd.ALIGN_CENTER);
 
-        prnMng.printStr("Email: " + shopEmail, 1, WoosimCmd.ALIGN_CENTER);
-        prnMng.printStr("Served By: " + servedBy, 1, WoosimCmd.ALIGN_CENTER);
+        printManager.printStr("--------------------------------");
 
-        prnMng.printStr("--------------------------------");
-
-        prnMng.printStr("  Items        Price  Qty  Total", 1, WoosimCmd.ALIGN_CENTER);
-        prnMng.printStr("--------------------------------");
+        printManager.printStr("  Items        Price  Qty  Total", 1, WoosimCmd.ALIGN_CENTER);
+        printManager.printStr("--------------------------------");
 
         double getItemPrice;
 
@@ -88,36 +95,47 @@ public class TestPrinter implements IPrintToPrinter {
             name = orderDetailsList.get(i).getProductName();
             price = orderDetailsList.get(i).getProductPrice();
             getItemPrice = Double.parseDouble(price);
-
             qty = orderDetailsList.get(i).getProductQuantity();
             weight = orderDetailsList.get(i).getProductWeight();
-
             cost_total = Integer.parseInt(qty) * Double.parseDouble(price);
-
-
-            prnMng.leftRightAlign(name + " " + f.format(getItemPrice) + "x" + qty, "=" + f.format(cost_total));
-
-
+            printManager.leftRightAlign(name + " " + f.format(getItemPrice) + "x" + qty, "=" + f.format(cost_total));
         }
 
-        prnMng.printStr("--------------------------------");
-        prnMng.printStr("Sub Total: " + currency + f.format(subTotal), 1, WoosimCmd.ALIGN_RIGHT);
-        prnMng.printStr("Total Tax (+): " + currency + f.format(Double.parseDouble(tax)), 1, WoosimCmd.ALIGN_RIGHT);
-        prnMng.printStr("Discount (-): " + currency + f.format(Double.parseDouble(discount)), 1, WoosimCmd.ALIGN_RIGHT);
-        prnMng.printStr("--------------------------------");
-        prnMng.printStr("Total Price: " + currency + f.format(Double.parseDouble(totalPrice)), 1, WoosimCmd.ALIGN_RIGHT);
+        printManager.printStr("--------------------------------");
+        printManager.printStr("Sub Total: " + currency + f.format(subTotal), 1, WoosimCmd.ALIGN_RIGHT);
+        printManager.printStr("Total Tax (+): " + currency + f.format(Double.parseDouble(tax)), 1, WoosimCmd.ALIGN_RIGHT);
+        printManager.printStr("Discount (-): " + currency + f.format(Double.parseDouble(discount)), 1, WoosimCmd.ALIGN_RIGHT);
+        printManager.printStr("--------------------------------");
+        printManager.printStr("Total Price: " + currency + f.format(Double.parseDouble(totalPrice)), 1, WoosimCmd.ALIGN_RIGHT);
 
-        prnMng.printNewLine();
-        prnMng.printStr(footer, 1, WoosimCmd.ALIGN_CENTER);
+        printManager.printNewLine();
+        printManager.printStr(footer, 1, WoosimCmd.ALIGN_CENTER);
 
-        prnMng.printNewLine();
+        printManager.printNewLine();
 
         //print barcode
-        prnMng.printPhoto(bm);
-        prnMng.printNewLine();
+        printManager.printPhoto(bm);
+        printManager.printNewLine();
 
-        printEnded(prnMng);
-        prnMng.printNewLine();
+        printManager.printNewLine();
+    }
+
+    private void printSmallReceiptContent() {
+        printManager.printStr("Order Time: " + orderTime + " " + orderDate, 1, WoosimCmd.ALIGN_CENTER);
+        printManager.printStr("  Items        Price  Qty  Total", 1, WoosimCmd.ALIGN_CENTER);
+        printManager.printStr("--------------------------------");
+        for (int i = 0; i < orderDetailsList.size(); i++) {
+            name = orderDetailsList.get(i).getProductName();
+            price = orderDetailsList.get(i).getProductPrice();
+            qty = orderDetailsList.get(i).getProductQuantity();
+            weight = orderDetailsList.get(i).getProductWeight();
+            cost_total = Integer.parseInt(qty) * Double.parseDouble(price);
+            printManager.leftRightAlign(name + " " + f.format(Double.parseDouble(price)) + "x" + qty, "=" + f.format(cost_total));
+        }
+        printManager.printStr("--------------------------------");
+        printManager.printStr("Total Price: " + currency + f.format(Double.parseDouble(totalPrice)), 1, WoosimCmd.ALIGN_RIGHT);
+        printEnded(printManager);
+        printManager.printNewLine();
     }
 
     @Override

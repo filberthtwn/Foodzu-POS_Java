@@ -313,9 +313,7 @@ public class ProductCart extends BaseActivity {
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
 
                 if (response.isSuccessful()) {
-                    for (int i = 0; i < 2; i++) {
-                        printReceipt(obj);
-                    }
+                    printReceipt(obj);
                     progressDialog.dismiss();
                     Toasty.success(
                         ProductCart.this,
