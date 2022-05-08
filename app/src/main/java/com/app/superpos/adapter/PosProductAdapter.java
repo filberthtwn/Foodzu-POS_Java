@@ -71,8 +71,9 @@ public class PosProductAdapter extends RecyclerView.Adapter<PosProductAdapter.My
         String weightUnit = productData.get(position).getProductWeightUnit();
         String productImage = productData.get(position).getProductImage();
         String productStock = productData.get(position).getProductStock();
-
         String tax = productData.get(position).getTax();
+        double sgstTax = productData.get(position).getSgstTax();
+        double cgstTax = productData.get(position).getCgstTax();
 
         String imageUrl= Constant.PRODUCT_IMAGE_URL+productImage;
 
@@ -165,6 +166,7 @@ public class PosProductAdapter extends RecyclerView.Adapter<PosProductAdapter.My
             return;
         }
         databaseAccess.open();
+
         int check = databaseAccess.addToCart(
             productData.getProductId(),
             productData.getProductName(),
@@ -174,7 +176,9 @@ public class PosProductAdapter extends RecyclerView.Adapter<PosProductAdapter.My
             1,
             productData.getProductImage(),
             productData.getProductStock(),
-            taxAmount
+            taxAmount,
+            productData.getSgstTax(),
+            productData.getCgstTax()
         );
         if (check == 1) {
             Toasty.success(
@@ -222,7 +226,7 @@ public class PosProductAdapter extends RecyclerView.Adapter<PosProductAdapter.My
             productImage = itemView.findViewById(R.id.img_product);
             btnAddToCart = itemView.findViewById(R.id.btn_add_cart);
             txtStockStatus=itemView.findViewById(R.id.txt_stock_status);
-            txtTax =itemView.findViewById(R.id.txt_tax);
+            txtTax =itemView.findViewById(R.id.txt_sgst);
             cardProduct = itemView.findViewById(R.id.card_product);
         }
     }

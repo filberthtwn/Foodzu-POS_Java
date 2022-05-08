@@ -56,6 +56,7 @@ public class Constant {
     public static final String INVOICE_ID="invoice_id";
     public static final String ORDER_DATE="order_date";
     public static final String ORDER_TIME="order_time";
+    public static final String ORDER_DETAIL="order_detail";
     public static final String ORDER_PAYMENT_METHOD="order_payment_method";
     public static final String ORDER_TYPE="order_type";
     public static final String KEY_TYPE="type";
@@ -101,6 +102,8 @@ public class Constant {
     public static final String PRODUCT_SUPPLIER="product_supplier";
     public static final String PRODUCT_SELL_PRICE="product_sell_price";
     public static final String PRODUCT_IMAGE="product_image";
+    public static final String PRODUCT_SGST_TAX="sgst";
+    public static final String PRODUCT_CGST_TAX="cgst";
     public static final String PRODUCT_ORDER_DATE="product_order_date";
 
     public static final String CART_ID="cart_id";

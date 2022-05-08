@@ -111,7 +111,19 @@ public class DatabaseAccess {
 
 
     //Add product into cart
-    public int addToCart(String productId, String productName, String weight, String weightUnit, String price, int qty, String productImage,String productStock,double tax) {
+    public int addToCart(
+        String productId,
+        String productName,
+        String weight,
+        String weightUnit,
+        String price,
+        int qty,
+        String productImage,
+        String productStock,
+        double tax,
+        double sgstTax,
+        double cgstTax
+    ) {
 
 
         Cursor result = database.rawQuery("SELECT * FROM product_cart WHERE product_id='" + productId + "'", null);
@@ -129,6 +141,10 @@ public class DatabaseAccess {
             values.put(Constant.PRODUCT_QTY, qty);
             values.put(Constant.PRODUCT_IMAGE, productImage);
             values.put(Constant.PRODUCT_STOCK, productStock);
+            values.put(Constant.PRODUCT_IMAGE, productImage);
+            values.put(Constant.PRODUCT_STOCK, productStock);
+            values.put(Constant.PRODUCT_SGST_TAX, sgstTax);
+            values.put(Constant.PRODUCT_CGST_TAX, cgstTax);
 
             values.put(Constant.TAX, tax);
 
@@ -158,8 +174,6 @@ public class DatabaseAccess {
         if (cursor.moveToFirst()) {
             do {
                 HashMap<String, String> map = new HashMap<>();
-
-
                 map.put(Constant.CART_ID, cursor.getString(cursor.getColumnIndex("cart_id")));
                 map.put(Constant.PRODUCT_ID, cursor.getString(cursor.getColumnIndex("product_id")));
                 map.put(Constant.PRODUCT_NAME, cursor.getString(cursor.getColumnIndex("product_name")));
@@ -169,12 +183,9 @@ public class DatabaseAccess {
                 map.put(Constant.PRODUCT_QTY, cursor.getString(cursor.getColumnIndex("product_qty")));
                 map.put(Constant.PRODUCT_IMAGE, cursor.getString(cursor.getColumnIndex("product_image")));
                 map.put(Constant.PRODUCT_STOCK, cursor.getString(cursor.getColumnIndex("product_stock")));
-
+                map.put(Constant.PRODUCT_SGST_TAX, cursor.getString(cursor.getColumnIndex("sgst")));
+                map.put(Constant.PRODUCT_CGST_TAX, cursor.getString(cursor.getColumnIndex("cgst")));
                 map.put(Constant.TAX, cursor.getString(cursor.getColumnIndex("tax")));
-
-
-
-
                 product.add(map);
             } while (cursor.moveToNext());
         }

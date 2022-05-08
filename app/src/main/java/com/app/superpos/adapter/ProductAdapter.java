@@ -74,7 +74,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.MyViewHo
 
         String imageUrl = Constant.PRODUCT_IMAGE_URL + productImage;
 
-
         holder.txtProductName.setText(name);
         holder.txtSupplierName.setText(context.getString(R.string.stock) + " :" + stock);
         holder.txtSellPrice.setText(context.getString(R.string.sell_price) + currency + sellPrice);

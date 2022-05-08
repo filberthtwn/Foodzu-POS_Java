@@ -10,12 +10,16 @@ public class OrderDetails {
             String name,
             String price,
             String quantity,
-            String weight
+            String weight,
+            String sgst,
+            String cgst
     ) {
         this.productName = name;
         this.productPrice = price;
         this.productQuantity = quantity;
         this.productWeight = weight;
+        this.sgst = sgst;
+        this.cgst = cgst;
     }
 
     @SerializedName("order_details_id")
@@ -43,6 +47,15 @@ public class OrderDetails {
 
     @SerializedName("product_image")
     private String productImage;
+
+    @SerializedName("reset_id")
+    private int resetId;
+
+    @SerializedName("sgst")
+    private String sgst = "0.0";
+
+    @SerializedName("cgst")
+    private String cgst = "0.0";
 
 
     public String getInvoiceId() {
@@ -79,7 +92,25 @@ public class OrderDetails {
     public String getProductWeight() {
         return productWeight;
     }
-
+    public String getResetId() {
+        return String.valueOf(resetId);
+    }
+    public double getPriceWithSgst() {
+        double sgstInDouble = Double.parseDouble(sgst);
+        return Double.parseDouble(productPrice) * (sgstInDouble/ 100);
+    }
+    public double getPriceWithCgst() {
+        double cgstInDouble = Double.parseDouble(cgst);
+        return Double.parseDouble(productPrice) * (cgstInDouble/ 100);
+    }
+    public double getSgst() {
+        if (sgst == null) return 0.0;
+        return Double.parseDouble(sgst);
+    }
+    public double getCgst() {
+        if (cgst == null) return 0.0;
+        return Double.parseDouble(cgst);
+    }
 
     public String getOrderDetailsId() {
         return orderDetailsId;

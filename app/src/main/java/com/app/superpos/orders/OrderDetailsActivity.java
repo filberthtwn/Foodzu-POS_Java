@@ -26,6 +26,7 @@ import com.app.superpos.bt_device.DeviceListActivity;
 import com.app.superpos.database.DatabaseAccess;
 import com.app.superpos.helpers.SharedPreferencesHelper;
 import com.app.superpos.model.OrderDetails;
+import com.app.superpos.model.OrderList;
 import com.app.superpos.networking.ApiClient;
 import com.app.superpos.networking.ApiInterface;
 import com.app.superpos.pdf_report.BarCodeEncoder;
@@ -52,12 +53,13 @@ public class OrderDetailsActivity extends BaseActivity {
 
 
     ImageView imgNoProduct;
-    TextView txtNoProducts, txtSubTotalPrice, txtTax, txtDiscount, txtTotalCost;
-    String invoiceId,shopName, orderDate,orderTime, orderPrice, customerName, tax, discount,shopAddress,shopEmail,shopContact;
+    TextView txtNoProducts, txtSubTotalPrice, txtSgst, txtCgst, txtDiscount, txtTotalCost;
+    String invoiceId,shopName, orderDate,orderTime, orderPrice, customerName, discount,shopAddress,shopEmail,shopContact;
+    OrderList orderDetail;
     double  calculatedTotalPrice;
 
     Button btnPdfReceipt,btnThermalPrinter;
-    List<OrderDetails> orderDetails;
+    List<OrderDetails> orderDetails = new ArrayList<>();
 
     //how many headers or column you need, add here by using ,
     //headers and get clients para meter must be equal
@@ -86,7 +88,8 @@ public class OrderDetailsActivity extends BaseActivity {
         recyclerView = findViewById(R.id.recycler);
         imgNoProduct = findViewById(R.id.image_no_product);
         txtSubTotalPrice = findViewById(R.id.txt_total_price);
-        txtTax = findViewById(R.id.txt_tax);
+        txtSgst = findViewById(R.id.txt_sgst);
+        txtCgst = findViewById(R.id.txt_cgst);
         txtDiscount = findViewById(R.id.txt_discount);
         txtTotalCost = findViewById(R.id.txt_total_cost);
         btnPdfReceipt = findViewById(R.id.btn_pdf_receipt);
@@ -105,21 +108,16 @@ public class OrderDetailsActivity extends BaseActivity {
 
 
         orderPrice = getIntent().getExtras().getString(Constant.ORDER_PRICE);
-        tax = getIntent().getExtras().getString(Constant.TAX);
         orderDate = getIntent().getExtras().getString(Constant.ORDER_DATE);
         orderTime = getIntent().getExtras().getString(Constant.ORDER_TIME);
         discount = getIntent().getExtras().getString(Constant.DISCOUNT);
         invoiceId = getIntent().getExtras().getString(Constant.INVOICE_ID);
         customerName = getIntent().getExtras().getString(Constant.CUSTOMER_NAME);
+        orderDetail = (OrderList) getIntent().getExtras().getSerializable(Constant.ORDER_DETAIL);
 
         getProductsData(invoiceId);
 
-        calculatedTotalPrice=Double.parseDouble(orderPrice)+Double.parseDouble(tax)-Double.parseDouble(discount);
-
-        double totalPrice=Double.parseDouble(orderPrice)+Double.parseDouble(tax)-Double.parseDouble(discount);
-
-        txtTotalCost.setText(getString(R.string.total_price)+": "+currency+f.format(totalPrice));
-
+        calculatedTotalPrice=Double.parseDouble(orderPrice)-Double.parseDouble(discount);
 
         imgNoProduct.setVisibility(View.GONE);
         txtNoProducts.setVisibility(View.GONE);
@@ -134,17 +132,23 @@ public class OrderDetailsActivity extends BaseActivity {
         recyclerView.setLayoutManager(linearLayoutManager); // set LayoutManager to RecyclerView
 
         recyclerView.setHasFixedSize(true);
-
-
-        double getTax=Double.parseDouble(tax);
-        double getOrderPrice=Double.parseDouble(orderPrice);
+        if (orderDetail == null) return;
+        double getOrderPrice = Double.parseDouble(orderPrice);
+        double calculatedSgst = getOrderPrice * orderDetail.getSgstTax()/ 100;
+        double calculatedCgst = getOrderPrice * orderDetail.getCgstTax()/ 100;
 
         txtSubTotalPrice.setText(getString(R.string.sub_total)+": "+currency+f.format(getOrderPrice));
-        txtTax.setText(getString(R.string.total_tax) + " : " + currency + f.format(getTax));
+        txtSgst.setText(getString(R.string.sgst) + " : " + currency + f.format(calculatedSgst));
+        txtCgst.setText(getString(R.string.cgst) + " : " + currency + f.format(calculatedCgst));
         txtDiscount.setText(getString(R.string.discount) + " : " + currency+ discount);
 
         OrderDetailsAdapter.subTotalPrice=0;
-
+        txtTotalCost.setText(
+            getString(R.string.total_price)
+            + ": "
+            + currency
+            + f.format(orderDetail.getTotalPriceWithTax())
+        );
 
         //for pdf report
         shortText = "Customer Name: Mr/Mrs. " + customerName;
@@ -186,12 +190,9 @@ public class OrderDetailsActivity extends BaseActivity {
         btnThermalPrinter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 //Check if the Bluetooth is available and on.
                 if (!Tools.isBlueToothOn(OrderDetailsActivity.this)) return;
-
                 PrefMng.saveActivePrinter(OrderDetailsActivity.this, PrefMng.PRN_WOOSIM_SELECTED);
-
                 //Pick a Bluetooth device
                 Intent i = new Intent(OrderDetailsActivity.this, DeviceListActivity.class);
                 startActivityForResult(i, REQUEST_CONNECT);
@@ -200,7 +201,6 @@ public class OrderDetailsActivity extends BaseActivity {
 
 
     }
-
 
     //for pdf
     private ArrayList<String[]> getPDFReceipt() {
@@ -212,28 +212,29 @@ public class OrderDetailsActivity extends BaseActivity {
         String name, price, qty, weight;
         double costTotal;
 
+        double subtotal = 0.0;
+        double totalSgst = 0.0;
+        double totalCgst = 0.0;
+
         for (int i = 0; i < orderDetails.size(); i++) {
-
-            name = orderDetails.get(i).getProductName();
-
-            price = orderDetails.get(i).getProductPrice();
-            qty = orderDetails.get(i).getProductQuantity();
-            weight = orderDetails.get(i).getProductWeight();
-
+            OrderDetails orderDetail = orderDetails.get(i);
+            name = orderDetail.getProductName();
+            price = orderDetail.getProductPrice();
+            qty = orderDetail.getProductQuantity();
+            weight = orderDetail.getProductWeight();
+            subtotal = subtotal + Double.parseDouble(price);
+            totalSgst = totalSgst + orderDetail.getPriceWithSgst();
+            totalCgst = totalCgst + orderDetail.getPriceWithCgst();
             costTotal = Integer.parseInt(qty) * Double.parseDouble(price);
-
             rows.add(new String[]{name + "\n" + weight + "\n" + "(" + qty + "x" + currency + price + ")", currency + costTotal});
-
-
         }
         rows.add(new String[]{"..........................................", ".................................."});
         rows.add(new String[]{"Sub Total: ", "(+)"+currency + f.format(Double.parseDouble(orderPrice))});
-        rows.add(new String[]{"Total Tax: ", "(+)"+currency + f.format(Double.parseDouble(tax))});
+        rows.add(new String[]{"Total Sgst: ", "(+)"+currency + f.format(totalSgst)});
+        rows.add(new String[]{"Total Cgst: ", "(+)"+currency + f.format(totalCgst)});
         rows.add(new String[]{"Discount: ", "(-)"+currency + discount});
         rows.add(new String[]{"..........................................", ".................................."});
-        rows.add(new String[]{"Total Price: ", currency + f.format(calculatedTotalPrice)});
-
-//        you can add more row above format
+        rows.add(new String[]{"Total Price: ", currency + f.format(subtotal + totalSgst + totalCgst)});
         return rows;
     }
 
@@ -310,12 +311,6 @@ public class OrderDetailsActivity extends BaseActivity {
     }
 
 
-
-
-
-
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == REQUEST_CONNECT && resultCode == RESULT_OK) {
@@ -323,7 +318,24 @@ public class OrderDetailsActivity extends BaseActivity {
                 //Get device address to print to.
                 String blutoothAddr = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
                 //The interface to print text to thermal printers.
-                IPrintToPrinter testPrinter = new TestPrinter(this, shopName, shopAddress, shopEmail, shopContact, invoiceId, orderDate, orderTime, shortText, longText, Double.parseDouble(orderPrice), f.format(calculatedTotalPrice), tax, discount, currency, userName,orderDetails);
+                IPrintToPrinter testPrinter = new TestPrinter(
+                    this,
+                    orderDetail.getIncrementedId(),
+                    shopName,
+                    shopAddress,
+                    shopEmail,
+                    shopContact,
+                    invoiceId,
+                    orderDate,
+                    orderTime,
+                    shortText,
+                    longText,
+                    Double.parseDouble(orderPrice),
+                    f.format(calculatedTotalPrice),
+                    discount,
+                    currency,
+                    userName,orderDetails
+                );
                 //Connect to the printer and after successful connection issue the print command.
                 mPrnMng = printerFactory.createPrnMng(this, blutoothAddr, testPrinter);
                 SharedPreferencesHelper.instance.storePrinterAddress(

@@ -182,8 +182,6 @@ public class ProductActivity extends BaseActivity {
         call.enqueue(new Callback<List<Product>>() {
             @Override
             public void onResponse(@NonNull Call<List<Product>> call, @NonNull Response<List<Product>> response) {
-
-
                 if (response.isSuccessful() && response.body() != null) {
                     List<Product> productsList;
                     productsList = response.body();
