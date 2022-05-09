@@ -252,6 +252,7 @@ public class PosActivity extends BaseActivity {
 
                 if (response.isSuccessful() && response.body() != null) {
                     List<Product> productsList;
+                    System.out.println("===GET PRODUCT DATA: " + response.body());
                     productsList = response.body();
 
 

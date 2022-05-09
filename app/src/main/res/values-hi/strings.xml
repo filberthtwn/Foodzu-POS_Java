@@ -80,6 +80,7 @@
     <string name="cancel">रद्द करना</string>
     <string name="payment">भुगतान</string>
     <string name="submit">प्रस्तुत</string>
+    <string name="no_print">कोई प्रिंट नहीं</string>
     <string name="product_name">उत्पाद का नाम</string>
     <string name="weight">वजन:</string>
     <string name="price">कीमत</string>

@@ -79,27 +79,28 @@
 
                         <TextView
                             android:id="@+id/txt_product_name"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginEnd="16dp"
                             android:layout_weight="1"
+                            android:ellipsize="end"
                             android:gravity="start"
                             android:maxLines="1"
                             android:padding="3dp"
                             android:text="@string/product_name"
-                            android:textSize="16sp"
+                            android:textSize="12sp"
                             android:textStyle="bold"
                             app:fontFamily="@font/sailec_regular" />
 
                         <TextView
                             android:id="@+id/txt_price"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:gravity="end"
                             android:padding="2dp"
                             android:text="@string/price"
                             android:textColor="@color/colorAccent"
-                            android:textSize="18sp"
+                            android:textSize="12sp"
                             app:fontFamily="@font/sailec_regular" />
                     </LinearLayout>
 
@@ -131,7 +132,7 @@
                         android:visibility="gone">
 
                         <TextView
-                            android:id="@+id/txt_tax"
+                            android:id="@+id/txt_sgst"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"

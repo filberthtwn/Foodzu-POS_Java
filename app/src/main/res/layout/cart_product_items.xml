@@ -75,10 +75,11 @@
                     android:textColor="#EA1D2C" />
 
                 <TextView
-                    android:id="@+id/txt_tax"
+                    android:id="@+id/txt_sgst"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/tax" />
+                    android:text="@string/tax"
+                    android:visibility="gone" />
 
             </LinearLayout>
 

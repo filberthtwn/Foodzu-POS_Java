@@ -1,3 +1,5 @@
 package com.app.superpos.pos;
- interface ProductCartDelegate  {
+
+public interface ProductCartDelegate {
+    void onUpdateTotalPriceView();
 }

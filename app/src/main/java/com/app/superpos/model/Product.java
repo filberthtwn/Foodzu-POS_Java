@@ -62,6 +62,10 @@ public class Product {
 
     @SerializedName("message")
     private String massage;
+    @SerializedName("cgst")
+    private double cgstTax = 0.0;
+    @SerializedName("sgst")
+    private double sgstTax = 0.0;
 
     public String getProductId() {
         return productId;
@@ -123,10 +127,13 @@ public class Product {
     public String getValue() {
         return value;
     }
-
     public String getTax() {
         return tax;
     }
-
-
+    public double getCgstTax() {
+        return cgstTax;
+    }
+    public double getSgstTax() {
+        return sgstTax;
+    }
 }

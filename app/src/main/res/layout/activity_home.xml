@@ -44,7 +44,7 @@
 
                             <ImageView
                                 android:id="@+id/imageView"
-                                android:layout_width="100dp"
+                                android:layout_width="150dp"
                                 android:layout_height="100dp"
                                 app:srcCompat="@drawable/super_pos_logo" />
 
@@ -452,25 +452,6 @@
                     android:background="@color/colorPrimary">
 
                 </View>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@id/layout2"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="10dp">
-
-
-                <com.google.android.gms.ads.AdView
-                    android:id="@+id/adview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:adSize="BANNER"
-                    app:adUnitId="@string/admob_banner_ads_id" />
-
 
             </LinearLayout>
 

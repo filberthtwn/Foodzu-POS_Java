@@ -2,7 +2,9 @@ package com.app.superpos.model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class OrderList {
+import java.io.Serializable;
+
+public class OrderList implements Serializable {
 
 
 
@@ -46,6 +48,14 @@ public class OrderList {
 
     @SerializedName("value")
     private String value;
+    @SerializedName("sgst")
+    private String sgst;
+    @SerializedName("cgst")
+    private String cgst;
+    @SerializedName("reset_id")
+    private String incrementedId = "0";
+
+    private double totalPriceWithTax = 0.0;
 
 
     public String getInvoiceId() {
@@ -100,8 +110,19 @@ public class OrderList {
     public String getOrderPrice() {
         return orderPrice;
     }
-
-
-
-
+    public double getSgstTax() {
+        return Double.parseDouble(sgst);
+    }
+    public double getCgstTax() {
+        return Double.parseDouble(cgst);
+    }
+    public String getIncrementedId() {
+        return incrementedId;
+    }
+    public double getTotalPriceWithTax(){
+        double orderTotalPrice = Double.parseDouble(orderPrice);
+        double priceWithSgst = orderTotalPrice * (getSgstTax()/ 100);
+        double priceWithCgst = orderTotalPrice * (getCgstTax()/ 100);
+        return orderTotalPrice + priceWithSgst + priceWithCgst;
+    }
 }

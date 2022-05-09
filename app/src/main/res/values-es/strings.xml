@@ -80,6 +80,7 @@
     <string name="cancel">Cancelar</string>
     <string name="payment">PAGO</string>
     <string name="submit">ENVIAR</string>
+    <string name="no_print">SIN IMPRIMIR</string>
     <string name="product_name">nombre del producto</string>
     <string name="weight">Peso</string>
     <string name="price">Precio</string>

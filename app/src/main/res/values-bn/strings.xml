@@ -101,6 +101,7 @@
     <string name="cancel">বাতিল </string>
     <string name="payment">পেমেন্ট </string>
     <string name="submit">সাবমিট </string>
+    <string name="no_print">কোন মুদ্রণ</string>
     <string name="weight">ওজনঃ  </string>
     <string name="price">মূল্য </string>
 

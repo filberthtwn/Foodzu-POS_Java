@@ -79,6 +79,7 @@
     <string name="cancel">Annuler</string>
     <string name="payment">PAIEMENT</string>
     <string name="submit">SOUMETTRE</string>
+    <string name="no_print">PAS D\'IMPRESSION</string>
     <string name="product_name">Nom du produit</string>
     <string name="weight">Poids:</string>
     <string name="price">Prix</string>

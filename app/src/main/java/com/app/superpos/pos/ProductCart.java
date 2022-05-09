@@ -28,19 +28,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.app.superpos.Constant;
 import com.app.superpos.R;
 import com.app.superpos.adapter.CartAdapter;
-import com.app.superpos.bt_device.DeviceListActivity;
 import com.app.superpos.database.DatabaseAccess;
 import com.app.superpos.helpers.SharedPreferencesHelper;
 import com.app.superpos.model.Customer;
 import com.app.superpos.model.OrderDetails;
 import com.app.superpos.networking.ApiClient;
 import com.app.superpos.networking.ApiInterface;
-import com.app.superpos.orders.OrderDetailsActivity;
 import com.app.superpos.orders.OrdersActivity;
 import com.app.superpos.orders.TestPrinter;
 import com.app.superpos.utils.BaseActivity;
 import com.app.superpos.utils.IPrintToPrinter;
-import com.app.superpos.utils.PrefMng;
 import com.app.superpos.utils.Tools;
 import com.app.superpos.utils.Utils;
 import com.app.superpos.utils.WoosimPrnMng;
@@ -65,11 +62,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ProductCart extends BaseActivity {
+public class ProductCart extends BaseActivity implements ProductCartDelegate {
 
     private final int REQUEST_CONNECT = 100;
     private WoosimPrnMng mPrnMng = null;
-
+    List<HashMap<String, String>> cartProductList;
     CartAdapter productCartAdapter;
     ImageView imgNoProduct;
     Button btnSubmitOrder;
@@ -86,6 +83,7 @@ public class ProductCart extends BaseActivity {
     DecimalFormat f;
 
     List<OrderDetails> orderDetails = new ArrayList<>();
+    Boolean isNeedPrinting = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,7 +135,6 @@ public class ProductCart extends BaseActivity {
 
 
         //get data from local database
-        List<HashMap<String, String>> cartProductList;
         cartProductList = databaseAccess.getCartProduct();
 
         Log.d("CartSize", "" + cartProductList.size());
@@ -152,24 +149,16 @@ public class ProductCart extends BaseActivity {
             linearLayout.setVisibility(View.GONE);
             txtTotalPrice.setVisibility(View.GONE);
         } else {
-
-
+            setupTotalPriceView();
             imgNoProduct.setVisibility(View.GONE);
-            productCartAdapter = new CartAdapter(ProductCart.this, cartProductList, txtTotalPrice, btnSubmitOrder, imgNoProduct, txtNoProduct);
-
+            productCartAdapter = new CartAdapter(this, ProductCart.this, cartProductList, txtTotalPrice, btnSubmitOrder, imgNoProduct, txtNoProduct);
             recyclerView.setAdapter(productCartAdapter);
-
-
         }
-
-
         btnSubmitOrder.setOnClickListener(v -> dialog());
-
     }
 
 
-    public void proceedOrder(String type, String paymentMethod, String customerName, double tax, String discount, double price) {
-
+    public void proceedOrder(String type, String paymentMethod, String customerName, String discount) {
         databaseAccess = DatabaseAccess.getInstance(ProductCart.this);
         databaseAccess.open();
 
@@ -215,7 +204,6 @@ public class ProductCart extends BaseActivity {
                     obj.put("customer_name", customerName);
 
                     obj.put("order_price", String.valueOf(orderPrice));
-                    obj.put("tax", String.valueOf(tax));
                     obj.put("discount", discount);
                     obj.put("served_by", servedBy);
                     obj.put("shop_id", shopID);
@@ -247,13 +235,16 @@ public class ProductCart extends BaseActivity {
                         objp.put("product_qty", lines.get(i).get("product_qty"));
                         objp.put("product_price", lines.get(i).get("product_price"));
                         objp.put("product_order_date", currentDate);
-                        objp.put("tax", lines.get(i).get("tax"));
+                        String sgstInString = lines.get(i).get("sgst");
+                        String cgstInString = lines.get(i).get("cgst");
                         orderDetails.add(
                             new OrderDetails(
                                 productName,
                                 lines.get(i).get("product_price"),
                                 lines.get(i).get("product_qty"),
-                                lines.get(i).get("product_weight") + " " + productWeightUnit
+                                lines.get(i).get("product_weight") + " " + productWeightUnit,
+                                sgstInString,
+                                cgstInString
                             )
                         );
                         array.put(objp);
@@ -304,42 +295,52 @@ public class ProductCart extends BaseActivity {
         progressDialog.show();
 
         RequestBody body2 = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), String.valueOf(obj));
-
-
-        Call<String> call = apiInterface.submitOrders(body2);
-
-        call.enqueue(new Callback<String>() {
+        Call<OrderDetails> call = apiInterface.submitOrders(body2);
+        call.enqueue(new Callback<OrderDetails>() {
             @Override
-            public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-
+            public void onResponse(
+                @NonNull Call<OrderDetails> call,
+                @NonNull Response<OrderDetails> response
+            ) {
                 if (response.isSuccessful()) {
-                    printReceipt(obj);
-                    progressDialog.dismiss();
-                    Toasty.success(
-                        ProductCart.this,
-                        R.string.order_successfully_done,
-                        Toast.LENGTH_SHORT
-                    ).show();
-                    databaseAccess.open();
-                    databaseAccess.emptyCart();
-                    dialogSuccess();
+                    try {
+                        String incrementedId = response.body().getResetId();
+                        obj.put("incremented_id", incrementedId);
+                        if (isNeedPrinting) {
+                            printReceipt(obj);
+                        }
+                        progressDialog.dismiss();
+                        Toasty.success(
+                            ProductCart.this,
+                            R.string.order_successfully_done,
+                            Toast.LENGTH_SHORT
+                        ).show();
+                        databaseAccess.open();
+                        databaseAccess.emptyCart();
+                        dialogSuccess();
+                    } catch (JSONException e) {
+                        System.out.println("===ERROR");
+                        System.out.println(e);
+                        progressDialog.dismiss();
+                        Toasty.error(
+                    ProductCart.this,
+                            R.string.error,
+                            Toast.LENGTH_SHORT
+                        ).show();
+                    }
                 } else {
-
                     Toasty.error(ProductCart.this, R.string.error, Toast.LENGTH_SHORT).show();
-
                     progressDialog.dismiss();
                     Log.d("error", response.toString());
-
                 }
-
-
             }
 
             @Override
-            public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-
+            public void onFailure(
+                Call<OrderDetails> call,
+                Throwable t
+            ) {
                 Log.d("onFailure", t.toString());
-
             }
         });
 
@@ -355,11 +356,11 @@ public class ProductCart extends BaseActivity {
                     );
             //The interface to print text to thermal printers.
             double orderPriceInDouble = Double.parseDouble(obj.getString("order_price"));
-            double taxInDouble = Double.parseDouble(obj.getString("tax"));
             double discountInDouble = Double.parseDouble(obj.getString("discount"));
-            double calculatedTotalPrice = orderPriceInDouble + taxInDouble - discountInDouble;
+            double calculatedTotalPrice = orderPriceInDouble + discountInDouble;
             IPrintToPrinter testPrinter = new TestPrinter(
                 this,
+                obj.getString("incremented_id"),
                 shopName,
                 shopAddress,
                 shopEmail,
@@ -371,7 +372,6 @@ public class ProductCart extends BaseActivity {
                 "< Have a nice day. Visit again >",
                 Double.parseDouble(obj.getString("order_price")),
                 f.format(calculatedTotalPrice),
-                obj.getString("tax"),
                 obj.getString("discount"),
                 currency,
                 userName,
@@ -433,13 +433,11 @@ public class ProductCart extends BaseActivity {
 
     }
 
-
     //dialog for taking otp code
     public void dialog() {
 
         databaseAccess.open();
         double totalTax = databaseAccess.getTotalTax();
-
 
         String shopCurrency = currency;
        // String tax = shopTax;
@@ -453,6 +451,7 @@ public class ProductCart extends BaseActivity {
         dialog.setView(dialogView);
         dialog.setCancelable(false);
 
+        final Button dialogBtnNoPrint = dialogView.findViewById(R.id.btn_payment_dialog_noPrint);
         final Button dialogBtnSubmit = dialogView.findViewById(R.id.btn_submit);
         final ImageButton dialogBtnClose = dialogView.findViewById(R.id.btn_close);
         final TextView dialogOrderPaymentMethod = dialogView.findViewById(R.id.dialog_order_status);
@@ -730,9 +729,19 @@ public class ProductCart extends BaseActivity {
 
         final AlertDialog alertDialog = dialog.create();
         alertDialog.show();
-
-
+        dialogBtnNoPrint.setOnClickListener(it -> {
+            isNeedPrinting = false;
+            String orderType1 = dialogOrderType.getText().toString().trim();
+            String orderPaymentMethod = dialogOrderPaymentMethod.getText().toString().trim();
+            String customerName = dialogCustomer.getText().toString().trim();
+            String discount1 = dialogEtxtDiscount.getText().toString().trim();
+            if (discount1.isEmpty()) {
+                discount1 = "0.00";
+            }
+            proceedOrder(orderType1, orderPaymentMethod, customerName, discount1);
+        });
         dialogBtnSubmit.setOnClickListener(v -> {
+            isNeedPrinting = true;
             if (!Tools.isBlueToothOn(ProductCart.this)) {
                 return;
             };
@@ -743,7 +752,7 @@ public class ProductCart extends BaseActivity {
             if (discount1.isEmpty()) {
                 discount1 = "0.00";
             }
-            proceedOrder(orderType1, orderPaymentMethod, customerName, getTax, discount1, calculatedTotalCost);
+            proceedOrder(orderType1, orderPaymentMethod, customerName, discount1);
             alertDialog.dismiss();
         });
 
@@ -806,6 +815,43 @@ public class ProductCart extends BaseActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void setupTotalPriceView() {
+        System.out.println("===SETUP TOTAL PRICE VIEW");
+        databaseAccess.open();
+        cartProductList = databaseAccess.getCartProduct();
+        databaseAccess.close();
+
+        double totalProductPrice = 0.0;
+        double totalSgstTax = 0.0;
+        double totalCgstTax = 0.0;
+
+        for (int i = 0; i < cartProductList.size(); i++) {
+            HashMap<String, String> cartProduct = cartProductList.get(i);
+            double productQuantity  = Double.parseDouble(cartProduct.get("product_qty"));
+            double productPrice = Double.parseDouble(cartProduct.get("product_price")) * productQuantity;
+            totalProductPrice = totalProductPrice + productPrice;
+            double sgstInPercent = Double.parseDouble(cartProduct.get("sgst"))/ 100;
+            totalSgstTax = totalSgstTax + (productPrice * sgstInPercent);
+            double cgstInPercent = Double.parseDouble(cartProduct.get("cgst"))/ 100;
+            totalCgstTax = totalCgstTax + (productPrice * cgstInPercent);
+        }
+        txtTotalPrice.setText(
+            getApplicationContext().getString(R.string.total_price)
+            + currency + f.format(totalProductPrice)
+            +"\nTotal SGST: "
+            + currency + f.format(totalSgstTax)
+            +"\nTotal CGST: "
+            + currency + f.format(totalCgstTax)
+            +"\nPrice with Tax: "
+            +currency + f.format(totalProductPrice + totalSgstTax + totalCgstTax)
+        );
+    }
+
+    @Override
+    public void onUpdateTotalPriceView() {
+        setupTotalPriceView();
     }
 }
 

@@ -43,7 +43,7 @@ public interface ApiInterface {
 
     //calling json array , need list
     @POST("orders_submit.php")
-    Call<String> submitOrders(
+    Call<OrderDetails> submitOrders(
             @Body RequestBody ordersData
     );
 
@@ -90,8 +90,7 @@ public interface ApiInterface {
     //get order data
     @GET("order_details_by_invoice.php")
     Call<List<OrderDetails>> OrderDetailsByInvoice(
-            @Query(Constant.INVOICE_ID) String invoiceId
-
+        @Query(Constant.INVOICE_ID) String invoiceId
     );
 
 
@@ -172,12 +171,12 @@ public interface ApiInterface {
     @FormUrlEncoded
     @POST("add_customer.php")
     Call<Customer> addCustomers(
-            @Field(Constant.CUSTOMER_NAME) String name,
-            @Field(Constant.CUSTOMER_CELL) String cell,
-            @Field(Constant.CUSTOMER_EMAIL) String email,
-            @Field(Constant.CUSTOMER_ADDRESS) String address,
-            @Field(Constant.SP_SHOP_ID) String shopId,
-            @Field(Constant.SP_OWNER_ID) String ownerId);
+        @Field(Constant.CUSTOMER_NAME) String name,
+        @Field(Constant.CUSTOMER_CELL) String cell,
+        @Field(Constant.CUSTOMER_EMAIL) String email,
+        @Field(Constant.CUSTOMER_ADDRESS) String address,
+        @Field(Constant.SP_SHOP_ID) String shopId,
+        @Field(Constant.SP_OWNER_ID) String ownerId);
 
 
     //add expense data to server

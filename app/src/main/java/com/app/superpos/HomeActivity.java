@@ -29,7 +29,6 @@ import com.app.superpos.utils.BaseActivity;
 import com.app.superpos.utils.LocaleManager;
 import com.gitonway.lee.niftymodaldialogeffects.lib.NiftyDialogBuilder;
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
@@ -57,9 +56,6 @@ public class HomeActivity extends BaseActivity {
     SharedPreferences.Editor editor;
     String userType;
     TextView txtShopName, txtSubText;
-
-    private AdView adView;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,11 +102,6 @@ public class HomeActivity extends BaseActivity {
             public void onInitializationComplete(InitializationStatus initializationStatus) {
             }
         });
-
-        adView = findViewById(R.id.adview);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        adView.loadAd(adRequest);
-
 
         cardCustomers.setOnClickListener(new View.OnClickListener() {
             @Override

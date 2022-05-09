@@ -112,19 +112,25 @@ public class AddCustomersActivity extends BaseActivity {
 
 
     private void addCustomer(String name,String cell,String email, String address,String shopId,String ownerId) {
-
-
-        loading=new ProgressDialog(this);
+        loading = new ProgressDialog(this);
         loading.setCancelable(false);
         loading.setMessage(getString(R.string.please_wait));
         loading.show();
-       ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
+        ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
+
+        System.out.println("NAME: " + name);
+        System.out.println("CELL: " + cell);
+        System.out.println("EMAIL: " + email);
+        System.out.println("ADDRESS: " + address);
+        System.out.println("SHOP ID: " + shopId);
+        System.out.println("OWNER ID: " + ownerId);
 
         Call<Customer> call = apiInterface.addCustomers(name,cell,email,address,shopId,ownerId);
         call.enqueue(new Callback<Customer>() {
             @Override
             public void onResponse(@NonNull Call<Customer> call, @NonNull Response<Customer> response) {
-
+                System.out.println("===RESPONSE BODY");
+                System.out.println(response.body());
 
                 if (response.isSuccessful() && response.body() != null) {
                     String value = response.body().getValue();
@@ -152,10 +158,7 @@ public class AddCustomersActivity extends BaseActivity {
                         loading.dismiss();
                         Toasty.error(AddCustomersActivity.this, R.string.failed, Toast.LENGTH_SHORT).show();
                     }
-                }
-
-                else
-                {
+                } else {
                     loading.dismiss();
                     Log.d("Error","Error");
                 }
@@ -163,6 +166,8 @@ public class AddCustomersActivity extends BaseActivity {
 
             @Override
             public void onFailure(@NonNull Call<Customer> call, @NonNull Throwable t) {
+                System.out.println("===ERROR ADD CUSTOMER");
+                System.out.println(t.toString());
                 loading.dismiss();
                 Log.d("Error! ", t.toString());
                 Toasty.error(AddCustomersActivity.this, R.string.no_network_connection, Toast.LENGTH_SHORT).show();

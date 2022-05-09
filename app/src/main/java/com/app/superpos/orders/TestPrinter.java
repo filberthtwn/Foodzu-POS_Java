@@ -27,11 +27,12 @@ public class TestPrinter implements IPrintToPrinter {
 
     private Context context;
     List<OrderDetails> orderDetailsList;
-    String currency, servedBy, shopName, shopAddress, shopEmail, shopContact, invoiceId, orderDate, orderTime, customerName, footer, tax, discount;
+    String incrementedId, currency, servedBy, shopName, shopAddress, shopEmail, shopContact, invoiceId, orderDate, orderTime, customerName, footer, tax, discount;
     Bitmap bm;
     WoosimPrnMng printManager;
 
-    public TestPrinter(Context context, String shopName, String shopAddress, String shopEmail, String shopContact, String invoiceId, String orderDate, String orderTime, String customerName, String footer, double subTotal, String totalPrice, String tax, String discount, String currency, String served_by, List<OrderDetails> orderDetailsList) {
+    public TestPrinter(Context context, String incrementedId, String shopName, String shopAddress, String shopEmail, String shopContact, String invoiceId, String orderDate, String orderTime, String customerName, String footer, double subTotal, String totalPrice, String discount, String currency, String served_by, List<OrderDetails> orderDetailsList) {
+        this.incrementedId = String.format("%04d", Integer.parseInt(incrementedId));
         this.context = context;
         this.shopName = shopName;
         this.shopAddress = shopAddress;
@@ -44,7 +45,6 @@ public class TestPrinter implements IPrintToPrinter {
         this.footer = footer;
         this.subTotal = subTotal;
         this.totalPrice = totalPrice;
-        this.tax = tax;
         this.discount = discount;
         this.currency = currency;
         this.servedBy = served_by;
@@ -70,6 +70,7 @@ public class TestPrinter implements IPrintToPrinter {
         } catch (WriterException e) {
             e.printStackTrace();
         }
+        printManager.printStr(incrementedId, 1, WoosimCmd.ALIGN_CENTER);
         String[] shopNames = shopName.split(",");
         for (String name : shopNames) {
             printManager.printStr(name, 1, WoosimCmd.ALIGN_CENTER);
@@ -90,8 +91,11 @@ public class TestPrinter implements IPrintToPrinter {
         printManager.printStr("--------------------------------");
 
         double getItemPrice;
+        double priceWithSgst = 0.0;
+        double priceWithCgst = 0.0;
 
         for (int i = 0; i < orderDetailsList.size(); i++) {
+            OrderDetails orderDetails = orderDetailsList.get(i);
             name = orderDetailsList.get(i).getProductName();
             price = orderDetailsList.get(i).getProductPrice();
             getItemPrice = Double.parseDouble(price);
@@ -99,11 +103,14 @@ public class TestPrinter implements IPrintToPrinter {
             weight = orderDetailsList.get(i).getProductWeight();
             cost_total = Integer.parseInt(qty) * Double.parseDouble(price);
             printManager.leftRightAlign(name + " " + f.format(getItemPrice) + "x" + qty, "=" + f.format(cost_total));
+            priceWithSgst = priceWithSgst + (getItemPrice * orderDetails.getSgst()/ 100);
+            priceWithCgst = priceWithCgst + (getItemPrice * orderDetails.getCgst()/ 100);
         }
 
         printManager.printStr("--------------------------------");
         printManager.printStr("Sub Total: " + currency + f.format(subTotal), 1, WoosimCmd.ALIGN_RIGHT);
-        printManager.printStr("Total Tax (+): " + currency + f.format(Double.parseDouble(tax)), 1, WoosimCmd.ALIGN_RIGHT);
+        printManager.printStr("Sgst (+): " + currency + f.format(priceWithSgst), 1, WoosimCmd.ALIGN_RIGHT);
+        printManager.printStr("Cgst (+): " + currency + f.format(priceWithCgst), 1, WoosimCmd.ALIGN_RIGHT);
         printManager.printStr("Discount (-): " + currency + f.format(Double.parseDouble(discount)), 1, WoosimCmd.ALIGN_RIGHT);
         printManager.printStr("--------------------------------");
         printManager.printStr("Total Price: " + currency + f.format(Double.parseDouble(totalPrice)), 1, WoosimCmd.ALIGN_RIGHT);
@@ -112,15 +119,12 @@ public class TestPrinter implements IPrintToPrinter {
         printManager.printStr(footer, 1, WoosimCmd.ALIGN_CENTER);
 
         printManager.printNewLine();
-
-        //print barcode
-        printManager.printPhoto(bm);
-        printManager.printNewLine();
-
+        printManager.printStr("--------------------------------");
         printManager.printNewLine();
     }
 
     private void printSmallReceiptContent() {
+        printManager.printStr(incrementedId, 1, WoosimCmd.ALIGN_CENTER);
         printManager.printStr("Order Time: " + orderTime + " " + orderDate, 1, WoosimCmd.ALIGN_CENTER);
         printManager.printStr("  Items        Price  Qty  Total", 1, WoosimCmd.ALIGN_CENTER);
         printManager.printStr("--------------------------------");

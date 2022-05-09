@@ -97,6 +97,7 @@
     <string name="cancel">Cancel</string>
     <string name="payment">PAYMENT</string>
     <string name="submit">SUBMIT</string>
+    <string name="no_print">NO PRINT</string>
     <string name="product_name">Product Name</string>
     <string name="weight">Weight:</string>
     <string name="price">Price</string>
@@ -197,7 +198,7 @@
     <string name="want_to_logout_from_app">Want to logout from app ?</string>
     <string name="delete">DELETE</string>
     <string name="tax">Tax</string>
-    <string name="tax_in_percentage">Tax in percentage (%)</string>
+    <string name="tax_in_percentage">Tax in percentage (%)</string>s
     <string name="total_tax">Total Tax</string>
     <string name="sub_total">Sub Total:</string>
     <string name="discount">Discount:</string>
