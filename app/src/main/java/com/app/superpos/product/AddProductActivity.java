@@ -53,7 +53,7 @@ public class AddProductActivity extends BaseActivity {
     ProgressDialog loading;
 
     public static EditText etxtProductCode;
-    EditText etxtProductName,etxtProductStock,etxtTax, etxtProductCategory, etxtProductDescription, etxtProductSellPrice, etxtProductSupplier, etxtProdcutWeightUnit, etxtProductWeight;
+    EditText etxtProductName,etxtProductStock, etcgst, etsgst, etxtProductCategory, etxtProductDescription, etxtProductSellPrice, etxtProductSupplier, etxtProdcutWeightUnit, etxtProductWeight;
     TextView txtAddProdcut, txtChooseImage;
     ImageView imgProduct, imgScanCode;
     List<Category> productCategory;
@@ -84,7 +84,8 @@ public class AddProductActivity extends BaseActivity {
         etxtProdcutWeightUnit = findViewById(R.id.etxt_product_weight_unit);
         etxtProductWeight = findViewById(R.id.etxt_product_weight);
         etxtProductStock = findViewById(R.id.etxt_product_stock);
-        etxtTax=findViewById(R.id.etxt_tax);
+        etcgst = findViewById(R.id.et_add_product_cgst);
+        etsgst = findViewById(R.id.et_add_product_sgst);
 
 
         txtAddProdcut = findViewById(R.id.txt_add_product);
@@ -377,7 +378,8 @@ public class AddProductActivity extends BaseActivity {
                 String productWeightUnitName = etxtProdcutWeightUnit.getText().toString();
                 String productWeightUnitId = selectedWeightUnitID;
                 String productWeight = etxtProductWeight.getText().toString();
-                String tax=etxtTax.getText().toString().trim();
+                String cgst = etcgst.getText().toString().trim();
+                String sgst = etsgst.getText().toString().trim();
 
 
                 if (productName.isEmpty()) {
@@ -397,14 +399,22 @@ public class AddProductActivity extends BaseActivity {
                     etxtProductWeight.requestFocus();
                 }
                 else {
-
-                    addProduct(productName, productCode, productCategoryId, productDescription, productSellPrice,  productWeight,productWeightUnitId,productSupplierId,productStock,tax,shopID,ownerId);
-
-
-
-
+                    addProduct(
+                        productName,
+                        productCode,
+                        productCategoryId,
+                        productDescription,
+                        productSellPrice,
+                        productWeight,
+                        productWeightUnitId,
+                        productSupplierId,
+                        productStock,
+                        cgst,
+                        sgst,
+                        shopID,
+                        ownerId
+                    );
                 }
-
             }
         });
 
@@ -456,8 +466,21 @@ public class AddProductActivity extends BaseActivity {
 
 
     // Uploading Image/Video
-    private void  addProduct(String productName,String productCode,String productCategoryId,String productDescription, String productSellPrice, String productWeight,String productWeightUnitId,String productSupplierId,String productStock,String tax,String shopId,String ownerId) {
-
+    private void  addProduct(
+        String productName,
+        String productCode,
+        String productCategoryId,
+        String productDescription,
+        String productSellPrice,
+        String productWeight,
+        String productWeightUnitId,
+        String productSupplierId,
+        String productStock,
+        String cgst,
+        String sgst,
+        String shopId,
+        String ownerId
+    ) {
         loading = new ProgressDialog(this);
         loading.setCancelable(false);
         loading.setMessage(getString(R.string.please_wait));
@@ -476,7 +499,6 @@ public class AddProductActivity extends BaseActivity {
             RequestBody requestBody = RequestBody.create(MediaType.parse("*/*"), file);
             MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("file", file.getName(), requestBody);
             RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), file.getName());
-
             RequestBody name = RequestBody.create(MediaType.parse("text/plain"), productName);
             RequestBody code = RequestBody.create(MediaType.parse("text/plain"), productCode);
             RequestBody category = RequestBody.create(MediaType.parse("text/plain"), productCategoryId);
@@ -488,17 +510,15 @@ public class AddProductActivity extends BaseActivity {
             RequestBody stock = RequestBody.create(MediaType.parse("text/plain"), productStock);
             RequestBody getShopId = RequestBody.create(MediaType.parse("text/plain"), shopId);
             RequestBody getOwnerId = RequestBody.create(MediaType.parse("text/plain"), ownerId);
-
-            RequestBody getTax = RequestBody.create(MediaType.parse("text/plain"), tax);
-
-
+            RequestBody getCgst = RequestBody.create(MediaType.parse("text/plain"), cgst);
+            RequestBody getSgst = RequestBody.create(MediaType.parse("text/plain"), sgst);
 
             ApiInterface getResponse = ApiClient.getApiClient().create(ApiInterface.class);
-            Call<Product> call = getResponse.addProduct(fileToUpload, filename, name, code, category, description, sellPrice, weight, weightUnitId, supplierId, stock, getTax, getShopId, getOwnerId);
+            Call<Product> call = getResponse.addProduct(
+                    fileToUpload, filename, name, code, category, description, sellPrice, weight, weightUnitId, supplierId, stock, getCgst, getSgst, getShopId, getOwnerId);
             call.enqueue(new Callback<Product>() {
                 @Override
                 public void onResponse(@NonNull Call<Product> call, @NonNull Response<Product> response) {
-
                     if (response.isSuccessful() && response.body() != null) {
 
                         loading.dismiss();

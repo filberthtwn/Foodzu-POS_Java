@@ -52,7 +52,7 @@ import retrofit2.Response;
 public class EditProductActivity extends BaseActivity {
 
     public static EditText etxtProductCode;
-    EditText etxtProductName, etxtProductStock, etxtTax, etxtProductCategory, etxtProductDescription, etxtProductSellPrice, etxtProductSupplier, etxtProdcutWeightUnit, etxtProductWeight;
+    EditText etxtProductName, etxtProductStock, etCgst, etSgst, etxtProductCategory, etxtProductDescription, etxtProductSellPrice, etxtProductSupplier, etxtProdcutWeightUnit, etxtProductWeight;
     TextView txtUpdate, txtChooseImage, txtEditProduct;
     ImageView imgProduct, imgScanCode;
     String mediaPath = "na", encodedImage = "N/A";
@@ -82,8 +82,8 @@ public class EditProductActivity extends BaseActivity {
         etxtProductSupplier = findViewById(R.id.etxt_supplier);
         etxtProdcutWeightUnit = findViewById(R.id.etxt_product_weight_unit);
         etxtProductWeight = findViewById(R.id.etxt_product_weight);
-        etxtTax = findViewById(R.id.etxt_tax);
-
+        etCgst = findViewById(R.id.et_add_product_cgst);
+        etSgst = findViewById(R.id.et_edit_product_sgst);
 
         txtUpdate = findViewById(R.id.txt_update);
         txtChooseImage = findViewById(R.id.txt_choose_image);
@@ -110,8 +110,8 @@ public class EditProductActivity extends BaseActivity {
         txtChooseImage.setEnabled(false);
         imgProduct.setEnabled(false);
         imgScanCode.setEnabled(false);
-        etxtTax.setEnabled(false);
-
+        etCgst.setEnabled(false);
+        etSgst.setEnabled(false);
 
         txtUpdate.setVisibility(View.GONE);
 
@@ -391,39 +391,33 @@ public class EditProductActivity extends BaseActivity {
         txtEditProduct.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
                 etxtProductName.setEnabled(true);
                 etxtProductCode.setEnabled(true);
                 etxtProductCategory.setEnabled(true);
                 etxtProductDescription.setEnabled(true);
                 etxtProductSellPrice.setEnabled(true);
                 etxtProductStock.setEnabled(true);
-
                 etxtProductSupplier.setEnabled(true);
                 etxtProdcutWeightUnit.setEnabled(true);
                 etxtProductWeight.setEnabled(true);
                 txtChooseImage.setEnabled(true);
                 imgProduct.setEnabled(true);
                 imgScanCode.setEnabled(true);
-                etxtTax.setEnabled(true);
-
-
+                etCgst.setEnabled(true);
+                etSgst.setEnabled(true);
                 etxtProductName.setTextColor(Color.RED);
                 etxtProductCode.setTextColor(Color.RED);
                 etxtProductCategory.setTextColor(Color.RED);
                 etxtProductDescription.setTextColor(Color.RED);
                 etxtProductSellPrice.setTextColor(Color.RED);
                 etxtProductStock.setTextColor(Color.RED);
-
                 etxtProductSupplier.setTextColor(Color.RED);
                 etxtProdcutWeightUnit.setTextColor(Color.RED);
                 etxtProductWeight.setTextColor(Color.RED);
-                etxtTax.setTextColor(Color.RED);
+                etCgst.setTextColor(Color.RED);
+                etSgst.setTextColor(Color.RED);
                 txtUpdate.setVisibility(View.VISIBLE);
                 txtEditProduct.setVisibility(View.GONE);
-
-
             }
         });
 
@@ -438,9 +432,8 @@ public class EditProductActivity extends BaseActivity {
 
                 String productSellPrice = etxtProductSellPrice.getText().toString();
                 String productWeight = etxtProductWeight.getText().toString();
-                String tax = etxtTax.getText().toString();
-
-
+                String cgst = etCgst.getText().toString();
+                String sgst = etSgst.getText().toString();
 
                 if (productName.isEmpty()) {
                     etxtProductName.setError(getString(R.string.product_name_cannot_be_empty));
@@ -461,11 +454,19 @@ public class EditProductActivity extends BaseActivity {
                     etxtProductWeight.setError(getString(R.string.product_weight_cannot_be_empty));
                     etxtProductWeight.requestFocus();
                 } else {
-
-
-                    updateProduct(productName, productCode, selectedCategoryID, productDescription, productSellPrice, productWeight, selectedWeightUnitID, selectedSupplierID, productStock, tax);
-
-
+                    updateProduct(
+                        productName,
+                        productCode,
+                        selectedCategoryID,
+                        productDescription,
+                        productSellPrice,
+                        productWeight,
+                        selectedWeightUnitID,
+                        selectedSupplierID,
+                        productStock,
+                        cgst,
+                        sgst
+                    );
                 }
 
             }
@@ -543,31 +544,23 @@ public class EditProductActivity extends BaseActivity {
 
                         String productWeight = productData.get(0).getProductWeight();
                         String productWeightUnit = productData.get(0).getProductWeightUnit();
-                        String tax = productData.get(0).getTax();
-
-
+                        String cgst = String.valueOf(productData.get(0).getCgstTax());
+                        String sgst = String.valueOf(productData.get(0).getSgstTax());
 
                         selectedCategoryID = productData.get(0).getProductCategoryId();
                         selectedSupplierID = productData.get(0).getProductSupplierID();
-
                         selectedWeightUnitID = productData.get(0).getProductWeightUnitId();
-
                         etxtProductName.setText(productName);
                         etxtProductCode.setText(productCode);
                         etxtProductCategory.setText(productCategoryName);
-
                         etxtProductDescription.setText(productDescription);
-
                         etxtProductSellPrice.setText(productSellPrice);
                         etxtProductStock.setText(productStock);
-
                         etxtProductSupplier.setText(productSupplierName);
-
                         etxtProdcutWeightUnit.setText(productWeightUnit);
-
                         etxtProductWeight.setText(productWeight);
-                        etxtTax.setText(tax);
-
+                        etCgst.setText(cgst);
+                        etSgst.setText(sgst);
 
                         String imageUrl = Constant.PRODUCT_IMAGE_URL + productImage;
 
@@ -731,7 +724,19 @@ public class EditProductActivity extends BaseActivity {
 
 
     // Uploading Image/Video
-    private void updateProduct(String productName, String productCode, String productCategoryId, String productDescription, String productSellPrice, String productWeight, String productWeightUnitId, String productSupplierId, String productStock, String tax) {
+    private void updateProduct(
+        String productName,
+        String productCode,
+        String productCategoryId,
+        String productDescription,
+        String productSellPrice,
+        String productWeight,
+        String productWeightUnitId,
+        String productSupplierId,
+        String productStock,
+        String sgst,
+        String cgst
+    ) {
 
         loading = new ProgressDialog(this);
         loading.setCancelable(false);
@@ -764,16 +769,43 @@ public class EditProductActivity extends BaseActivity {
         RequestBody supplierId = RequestBody.create(MediaType.parse("text/plain"), productSupplierId);
         RequestBody stock = RequestBody.create(MediaType.parse("text/plain"), productStock);
         RequestBody getProductID = RequestBody.create(MediaType.parse("text/plain"), productID);
-
-        RequestBody getTax = RequestBody.create(MediaType.parse("text/plain"), tax);
-
+        RequestBody getSgst = RequestBody.create(MediaType.parse("text/plain"), sgst);
+        RequestBody getCgst = RequestBody.create(MediaType.parse("text/plain"), cgst);
 
         ApiInterface getResponse = ApiClient.getApiClient().create(ApiInterface.class);
         Call<Product> call;
         if (mediaPath.equals("na")) {
-            call = getResponse.updateProductWithoutImage(name, code, category, description, sellPrice, weight, weightUnitId, supplierId, stock, getProductID, getTax);
+            call = getResponse.updateProductWithoutImage(
+                name,
+                code,
+                category,
+                description,
+                sellPrice,
+                weight,
+                weightUnitId,
+                supplierId,
+                stock,
+                getProductID,
+                getCgst,
+                getSgst
+            );
         } else {
-            call = getResponse.updateProduct(fileToUpload, filename, name, code, category, description, sellPrice, weight, weightUnitId, supplierId, stock, getProductID, getTax);
+            call = getResponse.updateProduct(
+                fileToUpload,
+                filename,
+                name,
+                code,
+                category,
+                description,
+                sellPrice,
+                weight,
+                weightUnitId,
+                supplierId,
+                stock,
+                getProductID,
+                getCgst,
+                getSgst
+            );
         }
         call.enqueue(new Callback<Product>() {
             @Override

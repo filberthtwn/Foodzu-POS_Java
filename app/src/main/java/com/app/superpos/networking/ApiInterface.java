@@ -301,39 +301,43 @@ public interface ApiInterface {
     //for upload image and info
     @Multipart
     @POST("add_product.php")
-    Call<Product> addProduct(@Part MultipartBody.Part file,
-                             @Part(Constant.KEY_FILE) RequestBody name,
-                             @Part(Constant.PRODUCT_NAME) RequestBody productName,
-                             @Part(Constant.PRODUCT_CODE) RequestBody productCode,
-                             @Part(Constant.CATEGORY_ID) RequestBody categoryId,
-                             @Part(Constant.PRODUCT_DESCRIPTION) RequestBody description,
-                             @Part(Constant.PRODUCT_SELL_PRICE) RequestBody sellPrice,
-                             @Part(Constant.PRODUCT_WEIGHT) RequestBody weight,
-                             @Part(Constant.PRODUCT_WEIGHT_UNIT_ID) RequestBody weightUnitId,
-                             @Part(Constant.SUPPLIERS_ID) RequestBody supplierId,
-                             @Part(Constant.PRODUCT_STOCK) RequestBody stock,
-                             @Part(Constant.TAX) RequestBody tax,
-                             @Part(Constant.SP_SHOP_ID) RequestBody shopId,
-                             @Part(Constant.SP_OWNER_ID) RequestBody ownerId);
+    Call<Product> addProduct(
+        @Part MultipartBody.Part file,
+        @Part(Constant.KEY_FILE) RequestBody name,
+        @Part(Constant.PRODUCT_NAME) RequestBody productName,
+        @Part(Constant.PRODUCT_CODE) RequestBody productCode,
+        @Part(Constant.CATEGORY_ID) RequestBody categoryId,
+        @Part(Constant.PRODUCT_DESCRIPTION) RequestBody description,
+        @Part(Constant.PRODUCT_SELL_PRICE) RequestBody sellPrice,
+        @Part(Constant.PRODUCT_WEIGHT) RequestBody weight,
+        @Part(Constant.PRODUCT_WEIGHT_UNIT_ID) RequestBody weightUnitId,
+        @Part(Constant.SUPPLIERS_ID) RequestBody supplierId,
+        @Part(Constant.PRODUCT_STOCK) RequestBody stock,
+        @Part("cgst") RequestBody cgst,
+        @Part("sgst") RequestBody sgst,
+        @Part(Constant.SP_SHOP_ID) RequestBody shopId,
+        @Part(Constant.SP_OWNER_ID) RequestBody ownerId
+    );
 
 
     //for upload image and info
     @Multipart
     @POST("update_product.php")
-    Call<Product> updateProduct(@Part MultipartBody.Part file,
-                                @Part(Constant.KEY_FILE) RequestBody name,
-                                @Part(Constant.PRODUCT_NAME) RequestBody productName,
-                                @Part(Constant.PRODUCT_CODE) RequestBody productCode,
-                                @Part(Constant.CATEGORY_ID) RequestBody categoryId,
-                                @Part(Constant.PRODUCT_DESCRIPTION) RequestBody description,
-                                @Part(Constant.PRODUCT_SELL_PRICE) RequestBody sellPrice,
-                                @Part(Constant.PRODUCT_WEIGHT) RequestBody weight,
-                                @Part(Constant.PRODUCT_WEIGHT_UNIT_ID) RequestBody weightUnitId,
-                                @Part(Constant.SUPPLIERS_ID) RequestBody supplierId,
-                                @Part(Constant.PRODUCT_STOCK) RequestBody stock,
-                                @Part(Constant.PRODUCT_ID) RequestBody product_id,
-                                @Part(Constant.TAX) RequestBody tax
-
+    Call<Product> updateProduct(
+        @Part MultipartBody.Part file,
+        @Part(Constant.KEY_FILE) RequestBody name,
+        @Part(Constant.PRODUCT_NAME) RequestBody productName,
+        @Part(Constant.PRODUCT_CODE) RequestBody productCode,
+        @Part(Constant.CATEGORY_ID) RequestBody categoryId,
+        @Part(Constant.PRODUCT_DESCRIPTION) RequestBody description,
+        @Part(Constant.PRODUCT_SELL_PRICE) RequestBody sellPrice,
+        @Part(Constant.PRODUCT_WEIGHT) RequestBody weight,
+        @Part(Constant.PRODUCT_WEIGHT_UNIT_ID) RequestBody weightUnitId,
+        @Part(Constant.SUPPLIERS_ID) RequestBody supplierId,
+        @Part(Constant.PRODUCT_STOCK) RequestBody stock,
+        @Part(Constant.PRODUCT_ID) RequestBody product_id,
+        @Part("cgst") RequestBody cgst,
+        @Part("sgst") RequestBody sgst
     );
 
 
@@ -341,20 +345,18 @@ public interface ApiInterface {
     @Multipart
     @POST("update_product_without_image.php")
     Call<Product> updateProductWithoutImage(
-
-            @Part(Constant.PRODUCT_NAME) RequestBody productName,
-            @Part(Constant.PRODUCT_CODE) RequestBody productCode,
-            @Part(Constant.CATEGORY_ID) RequestBody categoryId,
-            @Part(Constant.PRODUCT_DESCRIPTION) RequestBody description,
-            @Part(Constant.PRODUCT_SELL_PRICE) RequestBody sellPrice,
-            @Part(Constant.PRODUCT_WEIGHT) RequestBody weight,
-            @Part(Constant.PRODUCT_WEIGHT_UNIT_ID) RequestBody weightUnitId,
-            @Part(Constant.SUPPLIERS_ID) RequestBody supplierId,
-            @Part(Constant.PRODUCT_STOCK) RequestBody stock,
-            @Part(Constant.PRODUCT_ID) RequestBody productId,
-            @Part(Constant.TAX) RequestBody tax
-
-
+        @Part(Constant.PRODUCT_NAME) RequestBody productName,
+        @Part(Constant.PRODUCT_CODE) RequestBody productCode,
+        @Part(Constant.CATEGORY_ID) RequestBody categoryId,
+        @Part(Constant.PRODUCT_DESCRIPTION) RequestBody description,
+        @Part(Constant.PRODUCT_SELL_PRICE) RequestBody sellPrice,
+        @Part(Constant.PRODUCT_WEIGHT) RequestBody weight,
+        @Part(Constant.PRODUCT_WEIGHT_UNIT_ID) RequestBody weightUnitId,
+        @Part(Constant.SUPPLIERS_ID) RequestBody supplierId,
+        @Part(Constant.PRODUCT_STOCK) RequestBody stock,
+        @Part(Constant.PRODUCT_ID) RequestBody productId,
+        @Part("cgst") RequestBody cgst,
+        @Part("sgst") RequestBody sgst
     );
 
 

@@ -85,6 +85,9 @@ public class ProductCart extends BaseActivity implements ProductCartDelegate {
     List<OrderDetails> orderDetails = new ArrayList<>();
     Boolean isNeedPrinting = true;
 
+    double totalSgstTax = 0.0;
+    double totalCgstTax = 0.0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -319,8 +322,6 @@ public class ProductCart extends BaseActivity implements ProductCartDelegate {
                         databaseAccess.emptyCart();
                         dialogSuccess();
                     } catch (JSONException e) {
-                        System.out.println("===ERROR");
-                        System.out.println(e);
                         progressDialog.dismiss();
                         Toasty.error(
                     ProductCart.this,
@@ -437,14 +438,7 @@ public class ProductCart extends BaseActivity implements ProductCartDelegate {
     public void dialog() {
 
         databaseAccess.open();
-        double totalTax = databaseAccess.getTotalTax();
-
         String shopCurrency = currency;
-       // String tax = shopTax;
-
-        double getTax = totalTax;
-
-
 
         AlertDialog.Builder dialog = new AlertDialog.Builder(ProductCart.this);
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_payment, null);
@@ -473,12 +467,12 @@ public class ProductCart extends BaseActivity implements ProductCartDelegate {
         double totalCost = CartAdapter.totalPrice;
         dialogTxtTotal.setText(shopCurrency + totalCost);
 
-
-        dialogTxtTotalTax.setText(shopCurrency + f.format(getTax));
+        double totalTax = totalCgstTax + totalSgstTax;
+        dialogTxtTotalTax.setText(shopCurrency + f.format(totalTax));
 
 
         double discount = 0;
-        double calculatedTotalCost = totalCost + getTax - discount;
+        double calculatedTotalCost = totalCost + totalTax - discount;
         dialogTxtTotalCost.setText(shopCurrency + calculatedTotalCost);
 
 
@@ -495,7 +489,7 @@ public class ProductCart extends BaseActivity implements ProductCartDelegate {
                 double discount = 0;
                 String getDiscount = s.toString();
                 if (!getDiscount.isEmpty() && !getDiscount.equals(".")) {
-                    double calculatedTotalCost = totalCost + getTax;
+                    double calculatedTotalCost = totalCost + totalTax;
                     discount = Double.parseDouble(getDiscount);
                     if (discount > calculatedTotalCost) {
                         dialogEtxtDiscount.setError(getString(R.string.discount_cant_be_greater_than_total_price));
@@ -506,12 +500,12 @@ public class ProductCart extends BaseActivity implements ProductCartDelegate {
                     } else {
 
                         dialogBtnSubmit.setVisibility(View.VISIBLE);
-                        calculatedTotalCost = totalCost + getTax - discount;
+                        calculatedTotalCost = totalCost + totalTax - discount;
                         dialogTxtTotalCost.setText(shopCurrency + calculatedTotalCost);
                     }
                 } else {
 
-                    double calculatedTotalCost = totalCost + getTax - discount;
+                    double calculatedTotalCost = totalCost + totalTax - discount;
                     dialogTxtTotalCost.setText(shopCurrency + calculatedTotalCost);
                 }
 
@@ -818,14 +812,13 @@ public class ProductCart extends BaseActivity implements ProductCartDelegate {
     }
 
     public void setupTotalPriceView() {
-        System.out.println("===SETUP TOTAL PRICE VIEW");
         databaseAccess.open();
         cartProductList = databaseAccess.getCartProduct();
         databaseAccess.close();
 
         double totalProductPrice = 0.0;
-        double totalSgstTax = 0.0;
-        double totalCgstTax = 0.0;
+        totalCgstTax = 0.0;
+        totalSgstTax = 0.0;
 
         for (int i = 0; i < cartProductList.size(); i++) {
             HashMap<String, String> cartProduct = cartProductList.get(i);
@@ -837,6 +830,9 @@ public class ProductCart extends BaseActivity implements ProductCartDelegate {
             double cgstInPercent = Double.parseDouble(cartProduct.get("cgst"))/ 100;
             totalCgstTax = totalCgstTax + (productPrice * cgstInPercent);
         }
+
+
+
         txtTotalPrice.setText(
             getApplicationContext().getString(R.string.total_price)
             + currency + f.format(totalProductPrice)
