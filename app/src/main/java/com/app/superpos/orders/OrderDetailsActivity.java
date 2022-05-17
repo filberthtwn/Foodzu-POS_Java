@@ -117,8 +117,6 @@ public class OrderDetailsActivity extends BaseActivity {
 
         getProductsData(invoiceId);
 
-        calculatedTotalPrice=Double.parseDouble(orderPrice)-Double.parseDouble(discount);
-
         imgNoProduct.setVisibility(View.GONE);
         txtNoProducts.setVisibility(View.GONE);
 
@@ -134,21 +132,10 @@ public class OrderDetailsActivity extends BaseActivity {
         recyclerView.setHasFixedSize(true);
         if (orderDetail == null) return;
         double getOrderPrice = Double.parseDouble(orderPrice);
-        double calculatedSgst = getOrderPrice * orderDetail.getSgstTax()/ 100;
-        double calculatedCgst = getOrderPrice * orderDetail.getCgstTax()/ 100;
-
         txtSubTotalPrice.setText(getString(R.string.sub_total)+": "+currency+f.format(getOrderPrice));
-        txtSgst.setText(getString(R.string.sgst) + " : " + currency + f.format(calculatedSgst));
-        txtCgst.setText(getString(R.string.cgst) + " : " + currency + f.format(calculatedCgst));
         txtDiscount.setText(getString(R.string.discount) + " : " + currency+ discount);
 
         OrderDetailsAdapter.subTotalPrice=0;
-        txtTotalCost.setText(
-            getString(R.string.total_price)
-            + ": "
-            + currency
-            + f.format(orderDetail.getTotalPriceWithTax())
-        );
 
         //for pdf report
         shortText = "Customer Name: Mr/Mrs. " + customerName;
@@ -223,8 +210,8 @@ public class OrderDetailsActivity extends BaseActivity {
             qty = orderDetail.getProductQuantity();
             weight = orderDetail.getProductWeight();
             subtotal = subtotal + Double.parseDouble(price);
-            totalSgst = totalSgst + orderDetail.getPriceWithSgst();
-            totalCgst = totalCgst + orderDetail.getPriceWithCgst();
+            totalSgst = totalSgst + (orderDetail.getPriceWithSgst() * Integer.parseInt(qty));
+            totalCgst = totalCgst + (orderDetail.getPriceWithCgst() * Integer.parseInt(qty));
             costTotal = Integer.parseInt(qty) * Double.parseDouble(price);
             rows.add(new String[]{name + "\n" + weight + "\n" + "(" + qty + "x" + currency + price + ")", currency + costTotal});
         }
@@ -234,7 +221,7 @@ public class OrderDetailsActivity extends BaseActivity {
         rows.add(new String[]{"Total Cgst: ", "(+)"+currency + f.format(totalCgst)});
         rows.add(new String[]{"Discount: ", "(-)"+currency + discount});
         rows.add(new String[]{"..........................................", ".................................."});
-        rows.add(new String[]{"Total Price: ", currency + f.format(subtotal + totalSgst + totalCgst)});
+        rows.add(new String[]{"Total Price: ", currency + f.format(Double.parseDouble(orderPrice) + totalSgst + totalCgst)});
         return rows;
     }
 
@@ -256,17 +243,11 @@ public class OrderDetailsActivity extends BaseActivity {
         call.enqueue(new Callback<List<OrderDetails>>() {
             @Override
             public void onResponse(@NonNull Call<List<OrderDetails>> call, @NonNull Response<List<OrderDetails>> response) {
-
-
                 if (response.isSuccessful() && response.body() != null) {
-
                     orderDetails = response.body();
+                    setupPriceSummaryView();
                     loading.dismiss();
-
-
                     if (orderDetails.isEmpty()) {
-
-
                         Toasty.warning(OrderDetailsActivity.this, R.string.no_product_found, Toast.LENGTH_SHORT).show();
 
 
@@ -296,9 +277,28 @@ public class OrderDetailsActivity extends BaseActivity {
 
     }
 
-
-
-
+    private void setupPriceSummaryView() {
+        double totalPriceWithCgst = 0.0;
+        double totalPriceWithSgst = 0.0;
+        for (int i = 0; i < orderDetails.size(); i++) {
+            OrderDetails orderDetail = orderDetails.get(i);
+            int quantity = Integer.valueOf(orderDetail.getProductQuantity());
+            totalPriceWithCgst = totalPriceWithCgst + orderDetail.getPriceWithCgst() * quantity;
+            totalPriceWithSgst = totalPriceWithSgst + orderDetail.getPriceWithSgst() * quantity;
+        }
+        txtCgst.setText(getString(R.string.cgst) + " : " + currency + f.format(totalPriceWithCgst));
+        txtSgst.setText(getString(R.string.sgst) + " : " + currency + f.format(totalPriceWithSgst));
+        double totalTax = totalPriceWithCgst + totalPriceWithSgst;
+        double subtotalPrice = Double.parseDouble(orderDetail.getOrderPrice());
+        double discount = Double.parseDouble(orderDetail.getDiscount());
+        calculatedTotalPrice = subtotalPrice + totalTax - discount;
+        txtTotalCost.setText(
+            getString(R.string.total_price)
+                + ": "
+                + currency
+                + f.format(calculatedTotalPrice)
+        );
+    }
 
     //for back button
     @Override
