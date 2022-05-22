@@ -279,20 +279,22 @@ public class DatabaseAccess {
 
     //calculate total price of product
     public double getTotalPrice() {
-
-
         double totalPrice = 0;
-
         Cursor cursor = database.rawQuery("SELECT * FROM product_cart", null);
         if (cursor.moveToFirst()) {
             do {
-
                 double price = Double.parseDouble(cursor.getString(cursor.getColumnIndex("product_price")));
                 int qty = Integer.parseInt(cursor.getString(cursor.getColumnIndex("product_qty")));
                 double subTotal = price * qty;
-                totalPrice = totalPrice + subTotal;
 
+                double sgstTaxInPercentage = cursor.getDouble(cursor.getColumnIndex("sgst"));
+                double calculatedSgstTax = subTotal * (sgstTaxInPercentage/100);
 
+                double cgstTaxInPercentage = cursor.getDouble(cursor.getColumnIndex("cgst"));
+                double calculatedCgstTax = subTotal * (cgstTaxInPercentage/100);
+
+                double calculatedProductPrice = subTotal + calculatedCgstTax + calculatedSgstTax;
+                totalPrice = totalPrice + calculatedProductPrice;
             } while (cursor.moveToNext());
         } else {
             totalPrice = 0;
