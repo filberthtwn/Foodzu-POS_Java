@@ -34,7 +34,8 @@
                 android:gravity="center|start"
                 android:text="@string/payment"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-                android:textColor="@android:color/white" />
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
 
             <Button
                 android:id="@+id/btn_payment_dialog_noPrint"
@@ -187,7 +188,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:fontFamily="@font/sailec_regular"
@@ -197,11 +198,11 @@
 
                 <TextView
                     android:id="@+id/dialog_txt_total"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="right"
+                    android:layout_weight="2"
                     android:fontFamily="@font/sailec_regular"
+                    android:gravity="right"
                     android:padding="15dp"
                     android:text="00"
                     android:textSize="18sp" />
@@ -220,7 +221,7 @@
 
                 <TextView
                     android:id="@+id/dialog_level_tax"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:fontFamily="@font/sailec_regular"
@@ -230,12 +231,12 @@
 
                 <TextView
                     android:id="@+id/dialog_txt_total_tax"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_weight="2"
+                    android:fontFamily="@font/sailec_regular"
                     android:gravity="right"
                     android:padding="15dp"
-                    android:fontFamily="@font/sailec_regular"
                     android:text="00"
                     android:textSize="18sp" />
             </LinearLayout>
@@ -247,7 +248,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:fontFamily="@font/sailec_regular"
@@ -257,9 +258,9 @@
 
                 <EditText
                     android:id="@+id/etxt_dialog_discount"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_weight="2"
                     android:ems="10"
                     android:gravity="right"
                     android:hint="0.00"
@@ -275,7 +276,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:fontFamily="@font/sailec_regular"
@@ -285,9 +286,9 @@
 
                 <TextView
                     android:id="@+id/dialog_txt_total_cost"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_weight="2"
                     android:fontFamily="@font/sailec_regular"
                     android:gravity="right"
                     android:padding="15dp"

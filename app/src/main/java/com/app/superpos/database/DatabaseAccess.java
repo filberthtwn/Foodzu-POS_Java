@@ -276,6 +276,24 @@ public class DatabaseAccess {
         return currency;
     }
 
+    public double getSubtotalPrice() {
+        double subTotal = 0;
+        Cursor cursor = database.rawQuery("SELECT * FROM product_cart", null);
+        if (cursor.moveToFirst()) {
+            do {
+                double price = Double.parseDouble(cursor.getString(cursor.getColumnIndex("product_price")));
+                int qty = Integer.parseInt(cursor.getString(cursor.getColumnIndex("product_qty")));
+                double calculatedSubtotalPrice = price * qty;
+                subTotal = subTotal + calculatedSubtotalPrice;
+            } while (cursor.moveToNext());
+        } else {
+            subTotal = 0;
+        }
+        cursor.close();
+        database.close();
+        return subTotal;
+    }
+
 
     //calculate total price of product
     public double getTotalPrice() {

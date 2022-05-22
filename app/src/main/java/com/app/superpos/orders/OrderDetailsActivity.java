@@ -291,7 +291,7 @@ public class OrderDetailsActivity extends BaseActivity {
         double totalTax = totalPriceWithCgst + totalPriceWithSgst;
         double subtotalPrice = Double.parseDouble(orderDetail.getOrderPrice());
         double discount = Double.parseDouble(orderDetail.getDiscount());
-        calculatedTotalPrice = subtotalPrice + totalTax - discount;
+        calculatedTotalPrice = Math.round(subtotalPrice + totalTax - discount);
         txtTotalCost.setText(
             getString(R.string.total_price)
                 + ": "

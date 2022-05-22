@@ -169,7 +169,8 @@ public class ProductCart extends BaseActivity implements ProductCartDelegate {
 
         databaseAccess.open();
         double orderPrice = databaseAccess.getTotalPrice();
-
+        databaseAccess.open();
+        double subTotalPrice = databaseAccess.getSubtotalPrice();
 
         if (itemCount > 0) {
 
@@ -197,15 +198,16 @@ public class ProductCart extends BaseActivity implements ProductCartDelegate {
 
                 final JSONObject obj = new JSONObject();
                 try {
-
-
                     obj.put("invoice_id", invoiceNumber);
                     obj.put("order_date", currentDate);
                     obj.put("order_time", currentTime);
                     obj.put("order_type", type);
                     obj.put("order_payment_method", paymentMethod);
                     obj.put("customer_name", customerName);
-
+                    obj.put(
+                        "order_subtotal",
+                        String.valueOf(subTotalPrice)
+                    );
                     obj.put("order_price", String.valueOf(orderPrice));
                     obj.put("discount", discount);
                     obj.put("served_by", servedBy);
@@ -358,7 +360,7 @@ public class ProductCart extends BaseActivity implements ProductCartDelegate {
             //The interface to print text to thermal printers.
             double orderPriceInDouble = Double.parseDouble(obj.getString("order_price"));
             double discountInDouble = Double.parseDouble(obj.getString("discount"));
-            double calculatedTotalPrice = orderPriceInDouble + discountInDouble;
+            double calculatedTotalPrice = orderPriceInDouble - discountInDouble;
             IPrintToPrinter testPrinter = new TestPrinter(
                 this,
                 obj.getString("incremented_id"),
@@ -371,7 +373,7 @@ public class ProductCart extends BaseActivity implements ProductCartDelegate {
                 obj.getString("order_time"),
                 "Customer Name: Mr/Mrs. " + obj.getString("customer_name"),
                 "< Have a nice day. Visit again >",
-                Double.parseDouble(obj.getString("order_price")),
+                Double.parseDouble(obj.getString("order_subtotal")),
                 f.format(calculatedTotalPrice),
                 obj.getString("discount"),
                 currency,
@@ -830,9 +832,7 @@ public class ProductCart extends BaseActivity implements ProductCartDelegate {
             double cgstInPercent = Double.parseDouble(cartProduct.get("cgst"))/ 100;
             totalCgstTax = totalCgstTax + (productPrice * cgstInPercent);
         }
-
-
-
+        totalProductPrice = Math.round(totalProductPrice);
         txtTotalPrice.setText(
             getApplicationContext().getString(R.string.total_price)
             + currency + f.format(totalProductPrice)

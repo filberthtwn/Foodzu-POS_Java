@@ -21,8 +21,8 @@ import es.dmoral.toasty.Toasty;
 public class TestPrinter implements IPrintToPrinter {
 
 
-    String name, price, qty, weight, totalPrice;
-    double cost_total, subTotal;
+    String name, price, qty, weight;
+    double cost_total, subTotal, totalPrice;
     DecimalFormat f;
 
     private Context context;
@@ -44,7 +44,9 @@ public class TestPrinter implements IPrintToPrinter {
         this.customerName = customerName;
         this.footer = footer;
         this.subTotal = subTotal;
-        this.totalPrice = totalPrice;
+        this.totalPrice =  Math.round(
+            Double.parseDouble(totalPrice)
+        );
         this.discount = discount;
         this.currency = currency;
         this.servedBy = served_by;
@@ -103,8 +105,8 @@ public class TestPrinter implements IPrintToPrinter {
             weight = orderDetailsList.get(i).getProductWeight();
             cost_total = Integer.parseInt(qty) * Double.parseDouble(price);
             printManager.leftRightAlign(name + " " + f.format(getItemPrice) + "x" + qty, "=" + f.format(cost_total));
-            priceWithSgst = priceWithSgst + (getItemPrice * orderDetails.getSgst()/ 100);
-            priceWithCgst = priceWithCgst + (getItemPrice * orderDetails.getCgst()/ 100);
+            priceWithSgst = priceWithSgst + (cost_total * orderDetails.getSgst()/ 100);
+            priceWithCgst = priceWithCgst + (cost_total * orderDetails.getCgst()/ 100);
         }
 
         printManager.printStr("--------------------------------");
@@ -113,7 +115,7 @@ public class TestPrinter implements IPrintToPrinter {
         printManager.printStr("Cgst (+): " + currency + f.format(priceWithCgst), 1, WoosimCmd.ALIGN_RIGHT);
         printManager.printStr("Discount (-): " + currency + f.format(Double.parseDouble(discount)), 1, WoosimCmd.ALIGN_RIGHT);
         printManager.printStr("--------------------------------");
-        printManager.printStr("Total Price: " + currency + f.format(Double.parseDouble(totalPrice)), 1, WoosimCmd.ALIGN_RIGHT);
+        printManager.printStr("Total Price: " + currency + f.format(totalPrice), 1, WoosimCmd.ALIGN_RIGHT);
 
         printManager.printNewLine();
         printManager.printStr(footer, 1, WoosimCmd.ALIGN_CENTER);
@@ -137,7 +139,7 @@ public class TestPrinter implements IPrintToPrinter {
             printManager.leftRightAlign(name + " " + f.format(Double.parseDouble(price)) + "x" + qty, "=" + f.format(cost_total));
         }
         printManager.printStr("--------------------------------");
-        printManager.printStr("Total Price: " + currency + f.format(Double.parseDouble(totalPrice)), 1, WoosimCmd.ALIGN_RIGHT);
+        printManager.printStr("Total Price: " + currency + f.format(totalPrice), 1, WoosimCmd.ALIGN_RIGHT);
         printEnded(printManager);
         printManager.printNewLine();
     }
