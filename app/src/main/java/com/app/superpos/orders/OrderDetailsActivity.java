@@ -56,7 +56,8 @@ public class OrderDetailsActivity extends BaseActivity {
     TextView txtNoProducts, txtSubTotalPrice, txtSgst, txtCgst, txtDiscount, txtTotalCost;
     String invoiceId,shopName, orderDate,orderTime, orderPrice, customerName, discount,shopAddress,shopEmail,shopContact;
     OrderList orderDetail;
-    double  calculatedTotalPrice;
+    double calculatedTotalPrice;
+    double subtotalPrice;
 
     Button btnPdfReceipt,btnThermalPrinter;
     List<OrderDetails> orderDetails = new ArrayList<>();
@@ -132,7 +133,6 @@ public class OrderDetailsActivity extends BaseActivity {
         recyclerView.setHasFixedSize(true);
         if (orderDetail == null) return;
         double getOrderPrice = Double.parseDouble(orderPrice);
-        txtSubTotalPrice.setText(getString(R.string.sub_total)+": "+currency+f.format(getOrderPrice));
         txtDiscount.setText(getString(R.string.discount) + " : " + currency+ discount);
 
         OrderDetailsAdapter.subTotalPrice=0;
@@ -278,20 +278,28 @@ public class OrderDetailsActivity extends BaseActivity {
     }
 
     private void setupPriceSummaryView() {
+        double subtotalPrice = 0.0;
         double totalPriceWithCgst = 0.0;
         double totalPriceWithSgst = 0.0;
         for (int i = 0; i < orderDetails.size(); i++) {
             OrderDetails orderDetail = orderDetails.get(i);
+            double productPrice = Double.valueOf(orderDetail.getProductPrice());
             int quantity = Integer.valueOf(orderDetail.getProductQuantity());
+            subtotalPrice = subtotalPrice + (quantity * productPrice);
             totalPriceWithCgst = totalPriceWithCgst + orderDetail.getPriceWithCgst() * quantity;
             totalPriceWithSgst = totalPriceWithSgst + orderDetail.getPriceWithSgst() * quantity;
         }
         txtCgst.setText(getString(R.string.cgst) + " : " + currency + f.format(totalPriceWithCgst));
         txtSgst.setText(getString(R.string.sgst) + " : " + currency + f.format(totalPriceWithSgst));
         double totalTax = totalPriceWithCgst + totalPriceWithSgst;
-        double subtotalPrice = Double.parseDouble(orderDetail.getOrderPrice());
         double discount = Double.parseDouble(orderDetail.getDiscount());
         calculatedTotalPrice = Math.round(subtotalPrice + totalTax - discount);
+        txtSubTotalPrice.setText(
+            getString(R.string.sub_total)
+                + ": "
+                + currency
+                + f.format(subtotalPrice)
+        );
         txtTotalCost.setText(
             getString(R.string.total_price)
                 + ": "
@@ -357,12 +365,5 @@ public class OrderDetailsActivity extends BaseActivity {
         if (mPrnMng != null) mPrnMng.releaseAllocatoins();
         super.onDestroy();
     }
-
-
-
-
-
-
-
 }
 

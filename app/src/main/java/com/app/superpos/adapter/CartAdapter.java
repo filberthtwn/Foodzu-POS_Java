@@ -112,7 +112,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.MyViewHolder> 
 
 
         databaseAccess.open();
-        totalPrice = databaseAccess.getTotalPrice();
+        totalPrice = databaseAccess.getSubtotalPrice();
 
         databaseAccess.open();
         allTax=databaseAccess.getTotalTax();

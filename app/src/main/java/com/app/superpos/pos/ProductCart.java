@@ -467,16 +467,19 @@ public class ProductCart extends BaseActivity implements ProductCartDelegate {
 
         dialogTxtLevelTax.setText(getString(R.string.total_tax));
         double totalCost = CartAdapter.totalPrice;
-        dialogTxtTotal.setText(shopCurrency + totalCost);
+
+        dialogTxtTotal.setText(
+            String.format("%s%.2f", shopCurrency, totalCost)
+        );
 
         double totalTax = totalCgstTax + totalSgstTax;
         dialogTxtTotalTax.setText(shopCurrency + f.format(totalTax));
 
-
         double discount = 0;
         double calculatedTotalCost = totalCost + totalTax - discount;
-        dialogTxtTotalCost.setText(shopCurrency + calculatedTotalCost);
-
+        dialogTxtTotalCost.setText(
+            String.format("%s%.2f", shopCurrency, calculatedTotalCost)
+        );
 
         dialogEtxtDiscount.addTextChangedListener(new TextWatcher() {
             @Override
