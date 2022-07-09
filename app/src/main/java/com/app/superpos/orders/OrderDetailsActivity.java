@@ -66,7 +66,6 @@ public class OrderDetailsActivity extends BaseActivity {
     //headers and get clients para meter must be equal
     private String[] header = {"Description", "Price"};
 
-
     String longText, shortText, userName;
 
     private PDFTemplate templatePDF;
@@ -216,12 +215,12 @@ public class OrderDetailsActivity extends BaseActivity {
             rows.add(new String[]{name + "\n" + weight + "\n" + "(" + qty + "x" + currency + price + ")", currency + costTotal});
         }
         rows.add(new String[]{"..........................................", ".................................."});
-        rows.add(new String[]{"Sub Total: ", "(+)"+currency + f.format(Double.parseDouble(orderPrice))});
+        rows.add(new String[]{"Sub Total: ", "(+)"+currency + f.format(subtotalPrice)});
         rows.add(new String[]{"Total Sgst: ", "(+)"+currency + f.format(totalSgst)});
         rows.add(new String[]{"Total Cgst: ", "(+)"+currency + f.format(totalCgst)});
         rows.add(new String[]{"Discount: ", "(-)"+currency + discount});
         rows.add(new String[]{"..........................................", ".................................."});
-        rows.add(new String[]{"Total Price: ", currency + f.format(Double.parseDouble(orderPrice) + totalSgst + totalCgst)});
+        rows.add(new String[]{"Total Price: ", currency + f.format(calculatedTotalPrice)});
         return rows;
     }
 
@@ -278,7 +277,6 @@ public class OrderDetailsActivity extends BaseActivity {
     }
 
     private void setupPriceSummaryView() {
-        double subtotalPrice = 0.0;
         double totalPriceWithCgst = 0.0;
         double totalPriceWithSgst = 0.0;
         for (int i = 0; i < orderDetails.size(); i++) {
