@@ -8,10 +8,23 @@ android {
         minSdkVersion 19
         targetSdkVersion 29
         versionCode 1
-        versionName "1.1"
+        versionName "1.1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         useLibrary 'org.apache.http.legacy'
+        def buildVersion =  String.format(
+            "%s%03d",
+            (new Date()).format("yyyyMMdd"),
+            versionCode
+        )
+        setProperty(
+            "archivesBaseName",
+            String.format(
+                "foodzu-%s-%s",
+                versionName,
+                buildVersion
+            )
+        )
     }
     buildTypes {
         customDebugType {
