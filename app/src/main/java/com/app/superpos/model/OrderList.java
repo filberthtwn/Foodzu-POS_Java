@@ -31,7 +31,7 @@ public class OrderList implements Serializable {
     private String orderPaymentMethod;
 
     @SerializedName("discount")
-    private String discount;
+    private String discount = "0";
 
     @SerializedName("tax")
     private String tax;
@@ -96,6 +96,9 @@ public class OrderList implements Serializable {
     }
 
     public String getDiscount() {
+        if (discount.isEmpty()) {
+            return "0";
+        }
         return discount;
     }
 
